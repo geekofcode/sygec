@@ -47,27 +47,30 @@ class SuspensionSearch extends Suspension
     {
         if(Yii::$app->user->identity->ROLE == "R1" || Yii::$app->user->identity->ROLE == "R2")  $query = Suspension::find();
 
-        else $query = Suspension::find(['IDUSER'=>Yii::$app->user->identity->IDUSER]);
+        else {
 
-        if(Yii::$app->user->identity->DIRECTION != null) {
-            $direction = array();
-            $emps = Employe::find()->where(["DIRECTION" => Yii::$app->user->identity->DIRECTION])->all();
-            foreach($emps as $emp) $direction[] = $emp->MATRICULE;
-            $query->andWhere(["IN","MATICULE",$direction]);
-        }
+            $query = Suspension::find(['IDUSER'=>Yii::$app->user->identity->IDUSER]);
 
-        if(Yii::$app->user->identity->DEPARTEMENT != null) {
-            $direction = array();
-            $emps = Employe::find()->where(["CODEDPT" => Yii::$app->user->identity->DEPARTEMENT])->all();
-            foreach($emps as $emp) $direction[] = $emp->MATRICULE;
-            $query->andWhere(["IN","MATICULE",$direction]);
-        }
+            if(Yii::$app->user->identity->DIRECTION != null) {
+                $direction = array();
+                $emps = Employe::find()->where(["DIRECTION" => Yii::$app->user->identity->DIRECTION])->all();
+                foreach($emps as $emp) $direction[] = $emp->MATRICULE;
+                $query->andWhere(["IN","MATICULE",$direction]);
+            }
 
-        if(Yii::$app->user->identity->SERVICE != null) {
-            $direction = array();
-            $emps = Employe::find()->where(["SERVICE" => Yii::$app->user->identity->SERVICE])->all();
-            foreach($emps as $emp) $direction[] = $emp->MATRICULE;
-            $query->andWhere(["IN","MATICULE",$direction]);
+            if(Yii::$app->user->identity->DEPARTEMENT != null) {
+                $direction = array();
+                $emps = Employe::find()->where(["CODEDPT" => Yii::$app->user->identity->DEPARTEMENT])->all();
+                foreach($emps as $emp) $direction[] = $emp->MATRICULE;
+                $query->andWhere(["IN","MATICULE",$direction]);
+            }
+
+            if(Yii::$app->user->identity->SERVICE != null) {
+                $direction = array();
+                $emps = Employe::find()->where(["SERVICE" => Yii::$app->user->identity->SERVICE])->all();
+                foreach($emps as $emp) $direction[] = $emp->MATRICULE;
+                $query->andWhere(["IN","MATICULE",$direction]);
+            }
         }
 
         // add conditions that should always apply here

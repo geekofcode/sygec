@@ -18,6 +18,8 @@ use app\models\Etablissement;
 
     <?= $form->field($model, 'CONTENU')->textarea(['rows' => 6]) ?>
 
+    <?= $form->field($model, 'TIMBRE')->textInput(['maxlength' => true]) ?>
+
     <div class="form-group">
         <?= Html::submitButton('Enregistrer', ['class' => 'btn btn-success']) ?>
     </div>

@@ -21,15 +21,23 @@ use yii\helpers\ArrayHelper;
 
     <?= $form->field($model, 'DUREECONGES')->textInput(['type'=>'number']) ?>
 
+    <?= $form->field($model, 'DUREECONGES2')->textInput(['type'=>'number']) ?>
+
     <?= $form->field($model, 'DUREESERVICE')->textInput(['type'=>'number']) ?>
 
     <?= $form->field($model, 'SIGNATAIRE')->textInput() ?>
+
+    <?= $form->field($model, 'SIGNATAIRE1')->textInput() ?>
+
+    <?= $form->field($model, 'SIGNATAIRE2')->textInput() ?>
 
 <?= $form->field($model, 'TEXTE')->textArea(['rows'=>8]) ?>
 
 <?= $form->field($model, 'TEXTE2')->textArea(['rows'=>8]) ?>
 
 <?= $form->field($model, 'TEXTE3')->textArea(['rows'=>8]) ?>
+
+<?= $form->field($model, 'TEXTE4')->textArea(['rows'=>8]) ?>
 
 <?= $form->field($model, 'ARTICLE1')->textArea(['rows'=>4]) ?>
 

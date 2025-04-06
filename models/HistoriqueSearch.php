@@ -66,6 +66,8 @@ class HistoriqueSearch extends Historique
         $query->andFilterWhere(['like', 'LIBELLE', $this->LIBELLE])
             ->andFilterWhere(['like', 'FICHIER', $this->FICHIER]);
 
+        $query->orderBy(["ID" => SORT_DESC]);
+
         return $dataProvider;
     }
 }

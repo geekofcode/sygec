@@ -19,7 +19,7 @@ class AmpliationSearch extends Ampliation
     {
         return [
             [['ID'], 'integer'],
-            [['VILLE', 'CONTENU'], 'safe'],
+            [['VILLE', 'CONTENU', 'TIMBRE'], 'safe'],
         ];
     }
 
@@ -63,6 +63,7 @@ class AmpliationSearch extends Ampliation
         ]);
 
         $query->andFilterWhere(['like', 'VILLE', $this->VILLE])
+            ->andFilterWhere(['like', 'TIMBRE', $this->TIMBRE])
             ->andFilterWhere(['like', 'CONTENU', $this->CONTENU]);
 
         return $dataProvider;

@@ -51,6 +51,7 @@ $habilation = Habilitation::find()->where(['CODEROLE'=>$compte->ROLE,'CODEMENU'=
                 }
             ],
             'CONTENU:ntext',
+            'TIMBRE',
 
             ['class' => 'yii\grid\ActionColumn','template'=>$vue],
         ],

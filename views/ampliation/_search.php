@@ -19,7 +19,9 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'VILLE') ?>
 
-    <?= $form->field($model, 'CONTENU') ?>
+    <?= $form->field($model, 'CONTENU') ?> 
+    
+    <?= $form->field($model, 'TIMBRE')?>
 
     <div class="form-group">
         <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>

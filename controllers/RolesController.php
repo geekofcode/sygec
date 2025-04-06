@@ -78,6 +78,7 @@ class RolesController extends Controller
         $model = new Roles();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', 'Opération réussie.');
             return $this->redirect(['view', 'id' => $model->CODE]);
         }
 
@@ -98,6 +99,7 @@ class RolesController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', 'Opération réussie.');
             return $this->redirect(['view', 'id' => $model->CODE]);
         }
 
@@ -116,6 +118,8 @@ class RolesController extends Controller
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
+
+        Yii::$app->session->setFlash('success', 'Opération réussie.');
 
         return $this->redirect(['index']);
     }

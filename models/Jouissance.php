@@ -31,6 +31,10 @@ use Yii;
  * @property string $FINREPORT
  * @property string $DOCUMENT3
  * @property string $DOCUMENT4
+ * @property string $TIMBRE
+ * @property string $SIGNATAIRE
+ * @property string $RESPONSABLE
+ * @property string $PLATEFORME
  */
 class Jouissance extends \yii\db\ActiveRecord
 {
@@ -58,7 +62,8 @@ class Jouissance extends \yii\db\ActiveRecord
     {
         return [
             [['MESSAGE','employe','debutconge','timbre','signataire','decision','jouissances'], 'string'],
-            [['IDDECISION','TYPES'],'required'],
+            [['IDDECISION','TYPES','PLATEFORME'],'required'],
+            [['TIMBRE','SIGNATAIRE','RESPONSABLE'],'safe'],
             [['JOUR', 'DATECREATION','EXERCICE','STATUT','COMMENTAIRE','DOCUMENT2','NUMERO2','DATECANCEL','IDUSER','DEBUTREPORT','FINREPORT'], 'safe'],
             [['IDDECISION', 'USERCREATE','nbjour'], 'integer'],
             [['TITRE', 'DEBUT', 'LIEU', 'DOCUMENT','DOCUMENT3','DOCUMENT4'], 'string', 'max' => 100],
@@ -93,6 +98,7 @@ class Jouissance extends \yii\db\ActiveRecord
             'USERCREATE' => 'User create',
             'EXERCICE' => 'Exercice',
             'DOCUMENT' => 'Document de jouissance',
+            'PLATEFORME' => 'Plateforme Emettrice',
             'COMMENTAIRE' => 'Commentaire',
             'DOCUMENT2' => 'Piece jointe jouissance',
             'DOCUMENT3' => 'Piece jointe report',

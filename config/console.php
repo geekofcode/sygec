@@ -25,6 +25,21 @@ $config = [
                 ],
             ],
         ],
+        'mailer' => [
+            'class' => 'yii\swiftmailer\Mailer',
+            // send all mails to a file by default. You have to set
+            // 'useFileTransport' to false and configure a transport
+            // for the mailer to send real emails.
+            'useFileTransport' => false,
+            'transport' => [
+                'class' => 'Swift_SmtpTransport',
+                'host' => 'smtp-relay.sendinblue.com',
+                'username' => 'sender@adcsa.aero',
+                'password' => 'T4M1GjpZFhHb8fUd',
+                'port' => '587',
+                'encryption' => 'tls',
+            ],
+        ],
         'db' => $db,
     ],
     'params' => $params,

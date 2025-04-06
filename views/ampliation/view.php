@@ -39,6 +39,7 @@ $habilation = Habilitation::find()->where(['CODEROLE'=>$compte->ROLE,'CODEMENU'=
             //'ID',
             'VILLE',
             'CONTENU:ntext',
+            'TIMBRE'
         ],
     ]) ?>
 

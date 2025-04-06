@@ -263,25 +263,25 @@ class EmployeController extends Controller
                         if(!empty($Row[0])) {
 
                             $matricule = utf8_encode($Row[0]);
-                            $civilite = utf8_encode($Row[1]);
-                            $nom = utf8_encode($Row[2]);
-                            $jeune = utf8_encode($Row[3]);
-                            $prenom = utf8_encode($Row[4]);
-                            $datnaiss = utf8_encode($Row[5]);
-                            $statut = utf8_encode($Row[6]);
-                            $enfant = utf8_encode($Row[7]);
-                            $date_embauche = utf8_encode($Row[8]);
-                            $affectation = utf8_encode($Row[9]);
-                            $embauche = utf8_encode($Row[10]);
-                            $direction = utf8_encode($Row[11]);
-                            $departement = utf8_encode($Row[12]);
-                            $service = utf8_encode($Row[13]);
-                            $fonction = utf8_encode($Row[14]);
-                            $categorie = utf8_encode($Row[15]);
-                            $echelon = utf8_encode($Row[16]);
-                            $contrat = utf8_encode($Row[17]);
-
-                            $user = Employe::findOne(["MATRICULE"=>$matricule]);
+                            $civilite = isset($Row[1]) ? utf8_encode($Row[1]) : '';
+                            $nom = isset($Row[2]) ? utf8_encode($Row[2]) : '';
+                            $jeune = isset($Row[3]) ? utf8_encode($Row[3]) : '';
+                            $prenom = isset($Row[4]) ? utf8_encode($Row[4]) : '';
+                            $datnaiss = isset($Row[5]) ? utf8_encode($Row[5]) : '';
+                            $statut = isset($Row[6]) ? utf8_encode($Row[6]) : '';
+                            $enfant = isset($Row[7]) ? utf8_encode($Row[7]) : '';
+                            $date_embauche = isset($Row[8]) ? utf8_encode($Row[8]) : '';
+                            $affectation = isset($Row[9]) ? utf8_encode($Row[9]) : '';
+                            $embauche = isset($Row[10]) ? utf8_encode($Row[10]) : '';
+                            $direction = isset($Row[11]) ? utf8_encode($Row[11]) : '';
+                            $departement = isset($Row[12]) ? utf8_encode($Row[12]) : '';
+                            $service = isset($Row[13]) ? utf8_encode($Row[13]) : '';
+                            $fonction = isset($Row[14]) ? utf8_encode($Row[14]) : '';
+                            $categorie = isset($Row[15]) ? utf8_encode($Row[15]) : '';
+                            $echelon = isset($Row[16]) ? utf8_encode($Row[16]) : '';
+                            $contrat = isset($Row[17]) ? utf8_encode($Row[17]) : '';
+                            $calcul = isset($Row[18]) ? utf8_encode($Row[18]) : '';
+                            //$statut = isset($Row[20]) ? utf8_encode($Row[20]) : '';
 
                             $ex_cat = Categorie::findOne($categorie);
                             $ex_echellon = Echellon::findOne($echelon);
@@ -289,81 +289,105 @@ class EmployeController extends Controller
                             $cont = Contrat::find()->where(["LIKE","CODECONT",$contrat])->one();
                             $sit = Sitmat::find()->where(["LIKE","LIBELLE",$statut])->one();
                             $et1 = Etablissement::find()->where(["CODEETS" => $affectation])->one();
-                            $et2 = Etablissement::find()->where(["CODEETS" => $embauche])->one();                            $job = Emploi::find()->where(["LIKE","LIBELLE",$fonction])->one();
+                            $et2 = Etablissement::find()->where(["CODEETS" => $embauche])->one();
+                            $job = Emploi::find()->where(["LIKE","LIBELLE",$fonction])->one();
                             $dir = Direction::findOne($direction);
                             $sev = Service::findOne($service);
                             $dep = Departements::findOne($departement);
 
+                            $de = null; $di = null; $se = null; $jo = null; $ec = null; $ca = null;
 
-                            if($ex_cat == null) {
+
+                            if($ex_cat == null && !empty($categorie)) {
                                 $ex_cat = new Categorie();
                                 $ex_cat->CODECAT = $categorie;
                                 $ex_cat->LIBELLE = $categorie;
                                 $ex_cat->save(false);
-                            }
+                                $ca = $ex_cat->CODECAT;
+                            } else if($ex_cat != null) $ca = $ex_cat->CODECAT;
 
-                            if($job == null) {
+                            if($job == null && !empty(trim($fonction))) {
                                 $job = new Emploi();
                                 $job->LIBELLE = $fonction;
                                 $job->save(false);
-                            }
+                                $jo = $job->CODEEMP;
+                            } else if($job != null) $jo = $job->CODEEMP;
 
-                            if($ex_echellon == null){
+                            if($ex_echellon == null && !empty($echelon)) {
                                 $ex_echellon = new Echellon();
                                 $ex_echellon->CODEECH = $echelon;
                                 $ex_echellon->LIBELLE = $echelon;
                                 $ex_echellon->save(false);
-                            }
+                                $ec = $ex_echellon->CODEECH;
+                            } else if($ex_echellon != null) $ec = $ex_echellon->CODEECH;
 
-                            if($dir == null) {
+                            if($dir == null && !empty(trim($direction))) {
                                 $dir = new Direction();
-                                $dir->ID = $direction;
                                 $dir->LIBELLE = $direction;
                                 $dir->save(false);
-                            }
+                                $di = $dir->ID;
+                            } else if($dir != null) $di = $dir->ID;
 
-                            if($dep == null) {
+                            if($dep == null && !empty(trim($departement))) {
                                 $dep = new Departements();
-                                $dep->CODEDPT = $departement;
-                                $dep->CODEDPT = $departement;
+                                $dep->LIBELLE = $departement;
                                 $dep->save(false);
-                            }
+                                $de = $dep->CODEDPT;
+                            } else if($dep != null) $de = $dep->CODEDPT;
 
-                            if($sev == null) {
+                            if($sev == null && !empty($service)) {
                                 $sev = new Service();
-                                $sev->ID = $service;
                                 $sev->LIBELLE = $service;
                                 $sev->save(false);
+                                $se = $sev->ID; 
+                            } else if($sev != null) $se = $sev->ID;
+
+                            if(strlen($matricule) < 5) {
+                                $prefix = "";
+                                for($i = 1; $i<= (5 - strlen($matricule)); $i++) {
+                                    $prefix.="0";
+                                }
+                                $matricule = $prefix."".$matricule;
                             }
 
+                            if($calcul == null || empty(trim($calcul))) {
+                               $calcul = null;
+                            }
+
+                            $user = Employe::findOne(["MATRICULE"=>$matricule]);
 
                             if($user != null) {
 
-                                $user->CODECAT = ($ex_cat != null) ? $ex_cat->CODECAT : null;
-                                $user->CODEECH = ($ex_echellon != null) ? $ex_echellon->CODEECH : null;
-                                $user->CODEEMP = $job->CODEEMP;
+                                $user->CODECAT = $ca;
+                                $user->CODEECH = $ec;
+                                $user->CODEEMP = $jo;
                                 $user->CODEETS = ($et1 != null) ? $et1->CODEETS : null;
                                 $user->CODECIV = ($civ != null) ? $civ->CODECIV : null;
                                 $user->CODECONT = ($cont != null) ? $cont->CODECONT : null;
                                 $user->CODEETS_EMB = ($et2 != null) ? $et2->CODEETS : null;
                                 $user->SITMAT = ($sit != null) ? $sit->CODESIT: null;
-                                $user->NOM = $nom;
-                                $user->PRENOM = $prenom;
-                                $user->CODEDPT = $departement;
-                                $user->DIRECTION = $direction;
-                                $user->SERVICE = $service;
+                                if(!empty($nom)) $user->NOM = $nom;
+                                if(!empty($prenom)) $user->PRENOM = $prenom;
+                                $user->CODEDPT = $de;
+                                $user->DIRECTION = $di;
+                                $user->SERVICE = $se;
                                 $user->ENFANT = $enfant;
-                                $user->JEUNEFILLE = $jeune;
+                                $user->DATECALCUL = $calcul;
+                                $user->DATNAISS = $datnaiss;
+                                $user->DEPLACE = ($affectation != $embauche) ? 1 : 0;
+                                $user->STATUT = 1;
+                                if(!empty($jeune)) $user->JEUNEFILLE = $jeune;
                                 $user->save(false);
                             }
 
-                            else {
+                            else if($user == null && !empty($nom) && !empty($categorie) && !empty($echelon) && !empty($fonction) && !empty($contrat) && !empty($statut) && !empty($date_embauche) && !empty($affectation) && !empty($embauche) && !empty($direction) && !empty($departement) && !empty($service)) {
 
                                 $emp = new Employe();
+
                                 $emp->MATRICULE = $matricule;
                                 $emp->CODECAT = ($ex_cat != null) ? $ex_cat->CODECAT : null;
                                 $emp->CODEECH = ($ex_echellon != null) ? $ex_echellon->CODEECH : null;
-                                $emp->CODEEMP = $job->CODEEMP;
+                                $emp->CODEEMP = $jo;
                                 $emp->CODEETS = ($et1 != null) ? $et1->CODEETS : null;
                                 $emp->CODECIV = ($civ != null) ? $civ->CODECIV : null;
                                 $emp->CODECONT = ($cont != null) ? $cont->CODECONT : null;
@@ -373,19 +397,19 @@ class EmployeController extends Controller
                                 $emp->DATEEMBAUCHE = $date_embauche;
                                 $emp->SOLDECREDIT = 0;
                                 $emp->SOLDEAVANCE = 0;
-                                $emp->DATECALCUL = null;
-                                $emp->CODEDPT = $departement;
+                                $emp->DATECALCUL = $calcul;
+                                $emp->CODEDPT = $de;
                                 $emp->LASTCONGE = null;
                                 $emp->DEPLACE = ($affectation != $embauche) ? 1 : 0;
                                 $emp->DATNAISS = $datnaiss;
                                 $emp->STATUT = 1;
-                                $emp->DIRECTION = $direction;
+                                $emp->DIRECTION = $di;
                                 $emp->RH = 0;
                                 $emp->ENFANT = $enfant;
                                 $emp->SITMAT = ($sit != null) ? $sit->CODESIT: null;
                                 $emp->JEUNEFILLE = $jeune;
                                 $emp->VILLE = null;
-                                $emp->SERVICE = $service;
+                                $emp->SERVICE = $se;
                                 $emp->SOLDEAVANCE2 = 0;
                                 $emp->save(false);
 

@@ -10,6 +10,7 @@ use Yii;
  * @property int $ID
  * @property string $VILLE
  * @property string $CONTENU
+ * @property string $TIMBRE
  */
 class Ampliation extends \yii\db\ActiveRecord
 {
@@ -27,7 +28,7 @@ class Ampliation extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['CONTENU'], 'string'],
+            [['CONTENU','TIMBRE'], 'string'],
             [['VILLE'], 'string', 'max' => 10],
         ];
     }
@@ -41,6 +42,7 @@ class Ampliation extends \yii\db\ActiveRecord
             'ID' => 'ID',
             'VILLE' => 'Ville',
             'CONTENU' => 'Contenu',
+            'TIMBRE' => 'Timbre jouissance de congés'
         ];
     }
 }

@@ -115,9 +115,12 @@ class CancelationSearch extends Cancelation
 
         if(isset($this->DEBUT)) {
 
-              list($start_date, $end_date) = explode(' - ', $this->DEBUT);
+            if(!empty($this->DEBUT)) {
 
-            $query->andWhere(['>=', 'DEBUT', $start_date])->andWhere(['<=', 'DEBUT', $end_date]);
+                list($start_date, $end_date) = explode(' - ', $this->DEBUT);
+
+                $query->andWhere(['>=', 'DEBUT', $start_date])->andWhere(['<=', 'DEBUT', $end_date]);
+            }
 
         }
 

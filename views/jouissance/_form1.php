@@ -82,17 +82,17 @@ $habilation = Habilitation::find()->where(['CODEROLE'=>$compte->ROLE,'CODEMENU'=
 
     if($model->isNewRecord) {
 
-        echo $form->field($model, 'timbre')->textInput(['type'=>'text', 'required'=>true]);
+        echo $form->field($model, 'TIMBRE')->textInput(['type'=>'text', 'required'=>true]);
 
-        echo $form->field($model, 'signataire')->textInput(['type'=>'text', 'required'=>true]);
+        echo $form->field($model, 'SIGNATAIRE')->textInput(['type'=>'text', 'required'=>true]);
 
     }
 
     else {
 
-        echo $form->field($model, 'timbre')->textInput(['type'=>'text', 'required'=>true, 'disabled'=> true]);
+        echo $form->field($model, 'TIMBRE')->textInput(['type'=>'text', 'required'=>true, 'disabled'=> true]);
 
-        echo $form->field($model, 'signataire')->textInput(['type'=>'text', 'required'=>true, 'disabled'=>($model->STATUT == "V")?true:false]);
+        echo $form->field($model, 'SIGNATAIRE')->textInput(['type'=>'text', 'required'=>true, 'disabled'=>($model->STATUT == "V")?true:false]);
     }
 
     ?>
@@ -100,6 +100,8 @@ $habilation = Habilitation::find()->where(['CODEROLE'=>$compte->ROLE,'CODEMENU'=
     <?= $form->field($model, 'COMMENTAIRE')->textarea(['rows' => 6]) ?>
 
      <?= $form->field($model, 'DOCUMENTFILE')->fileInput()->label("DOCUMENT"); $model->getDOC(); ?>
+
+    <?php echo $form->field($model, 'PLATEFORME')->dropDownList(ArrayHelper::map(\app\models\Etablissement::find()->all(),"CODEETS","LIBELLE"),['prompt'=>'Choisir','disabled'=>$model->isNewRecord?false:true])  ?>
 
      <div class="form-group">
          <?php if($model->isNewRecord) echo Html::submitButton('ENREGISTRER', ['class' => 'btn btn-success']) ?>

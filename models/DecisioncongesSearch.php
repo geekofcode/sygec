@@ -144,21 +144,21 @@ class DecisioncongesSearch extends Decisionconges
         }
 
         if(isset($this->direction)) {
-
-            $tab = array();
-            $emps = Employe::find()->where(["DIRECTION" => $this->direction])->all();
-            foreach($emps as $emp) $tab[] = $emp->MATRICULE;
-
-            $query->andFilterWhere(["IN","MATICULE",$tab]);
+            if(!empty($this->direction)) {
+                $tab = array();
+                $emps = Employe::find()->where(["DIRECTION" => $this->direction])->all();
+                foreach ($emps as $emp) $tab[] = $emp->MATRICULE;
+                $query->andFilterWhere(["IN", "MATICULE", $tab]);
+            }
         }
 
         if(isset($this->service)) {
-
-            $tab = array();
-            $emps = Employe::find()->where(["SERVICE" => $this->service])->all();
-            foreach($emps as $emp) $tab[] = $emp->MATRICULE;
-
-            $query->andFilterWhere(["IN","MATICULE",$tab]);
+            if(!empty($this->service)) {
+                $tab = array();
+                $emps = Employe::find()->where(["SERVICE" => $this->service])->all();
+                foreach ($emps as $emp) $tab[] = $emp->MATRICULE;
+                $query->andFilterWhere(["IN", "MATICULE", $tab]);
+            }
         }
 
         return $dataProvider;

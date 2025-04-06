@@ -34,6 +34,8 @@ use Yii;
  * @property string $JEUNEFILLE
  * @property string $VILLE
  * @property string $SERVICE
+ * @property string $AMPLIATION
+ * @property string $TIMBRE
  *
  * @property ABSENCEPONCTUEL[] $aBSENCEPONCTUELs
  * @property DECISIONCONGES[] $dECISIONCONGESs
@@ -62,7 +64,7 @@ class Employe extends \yii\db\ActiveRecord
     {
         return [
             [['MATRICULE','CODECAT','CODEECH','CODEEMP','CODEETS','CODECIV','CODECONT','SITMAT'], 'required'],
-            [['DATEEMBAUCHE','SITMAT','JEUNEFILLE','SERVICE','VILLE','DATECALCUL','CODEDPT','LASTCONGE','COMMENTAIRE','STATUT','DATNAISS','DEPLACE','DIRECTION','RH'], 'safe'],
+            [['DATEEMBAUCHE','SITMAT','JEUNEFILLE','SERVICE','VILLE','DATECALCUL','CODEDPT','LASTCONGE','COMMENTAIRE','STATUT','DATNAISS','DEPLACE','DIRECTION','RH','AMPLIATION','TIMBRE'], 'safe'],
             [['SOLDECREDIT', 'SOLDEAVANCE','ENFANT'], 'number'],
             [['MATRICULE'], 'string', 'max' => 10],
            // [['CODECAT', 'CODEECH', 'CODEEMP', 'CODEETS', 'CODECIV', 'CODECONT', 'CODEETS_EMB'], 'string', 'max' => 5],
@@ -102,8 +104,9 @@ class Employe extends \yii\db\ActiveRecord
             'RH' => 'Personnel RH',
             'DEPLACE' => 'Déplacé ',
             'SITMAT' => 'Situation matrimoniale',
-            'DATNAISS' => 'Date de naissance'
-
+            'DATNAISS' => 'Date de naissance',
+            'AMPLIATION' => 'Ampliation',
+            'TIMBRE' => 'Timbre de décisions'
         ];
     }
 
@@ -187,7 +190,7 @@ class Employe extends \yii\db\ActiveRecord
 
             $data = Categorie::findOne($this->CODECAT);
 
-            return $data->LIBELLE;
+            if($data == null) return ""; else return $data->LIBELLE;
         }
     }
 
@@ -199,7 +202,7 @@ class Employe extends \yii\db\ActiveRecord
 
             $data = Echellon::findOne($this->CODEECH);
 
-            return $data->LIBELLE;
+            if($data == null) return ""; else return $data->LIBELLE;
         }
     }
 
@@ -211,7 +214,7 @@ class Employe extends \yii\db\ActiveRecord
 
             $data = Emploi::findOne($this->CODEEMP);
 
-            return $data->LIBELLE;
+            if($data == null) return ""; else return $data->LIBELLE;
         }
     }
 
@@ -223,7 +226,7 @@ class Employe extends \yii\db\ActiveRecord
 
             $data = Etablissement::findOne($this->CODEETS);
 
-            return $data->LIBELLE;
+            if($data == null) return ""; else return $data->LIBELLE;
         }
     }
 
@@ -235,7 +238,7 @@ class Employe extends \yii\db\ActiveRecord
 
             $data = Etablissement::findOne($this->CODEETS_EMB);
 
-            return $data->LIBELLE;
+            if($data == null) return ""; else return $data->LIBELLE;
         }
     }
 
@@ -247,7 +250,7 @@ class Employe extends \yii\db\ActiveRecord
 
             $data = Civilite::findOne($this->CODECIV);
 
-            return $data->LIBELLE;
+            if($data == null) return ""; else return $data->LIBELLE;
         }
     }
 
@@ -259,7 +262,7 @@ class Employe extends \yii\db\ActiveRecord
 
             $data = Contrat::findOne($this->CODECONT);
 
-            return $data->LIBELLE;
+            if($data == null) return ""; else return $data->LIBELLE;
         }
     }
 
@@ -276,7 +279,7 @@ class Employe extends \yii\db\ActiveRecord
 
             $data = Departements::findOne($this->CODEDPT);
 
-            return $data->LIBELLE;
+            if($data == null) return ""; else return $data->LIBELLE;
         }
     }
 
@@ -288,7 +291,7 @@ class Employe extends \yii\db\ActiveRecord
 
             $data = Direction::findOne($this->DIRECTION);
 
-            return $data->LIBELLE;
+            if($data == null) return ""; else  return $data->LIBELLE;
         }
     }
 
@@ -300,7 +303,7 @@ class Employe extends \yii\db\ActiveRecord
 
             $data = Service::findOne($this->SERVICE);
 
-            return $data->LIBELLE;
+            if($data == null) return ""; else return $data->LIBELLE;
         }
     }
 

@@ -7,6 +7,7 @@ use app\models\Ampliation;
 use app\models\Cancelation;
 use app\models\Departements;
 use app\models\Employe;
+use app\models\Etablissement;
 use app\models\Exercice;
 use app\models\Parametre;
 use Yii;
@@ -167,7 +168,31 @@ class JouissanceController extends Controller
 
                             $setting = Parametre::findOne(1);
 
-                            $numero = $this->getDecisionNumber($decision->ANNEEEXIGIBLE)." - ".$setting->TIMBREJOUISSANCE."".$model->timbre."".Yii::$app->user->identity->INITIAL;
+                            $timbre = "";
+
+                            $employe = \app\models\Employe::findOne($decision->MATICULE);
+
+                            if ($employe->CODEETS_EMB == "DLA") {
+                                $di = \app\models\Direction::findOne($employe->DIRECTION);
+                                if (($di != null) && strpos($di->LIBELLE, 'Exploitation') !== false) {
+                                    $ampliation = \app\models\Ampliation::findOne(8);
+                                } else {
+                                    $ampliation = \app\models\Ampliation::findOne(3);
+                                }
+        
+                            } else if ($employe->CODEETS_EMB == "NSI") {
+                                $di = \app\models\Direction::findOne($employe->DIRECTION);
+                                if (($di != null) && strpos($di->LIBELLE, 'International') !== false) {
+                                    $ampliation = \app\models\Ampliation::findOne(7);
+                                } else {
+                                    $ampliation = \app\models\Ampliation::findOne(9);
+                                }
+                            } else  $ampliation = \app\models\Ampliation::findOne(['VILLE' => $employe->CODEETS_EMB]);
+        
+                            if(($ampliation->TIMBRE != null) && !empty($ampliation->TIMBRE))  $timbre = $ampliation->TIMBRE;
+                            else $timbre = $setting->TIMBREJOUISSANCE;
+                            
+                            $numero = $this->getDecisionNumber($decision->ANNEEEXIGIBLE)." - ".$timbre."".$model->timbre."".Yii::$app->user->identity->INITIAL;
 
                             $model->NUMERO = $numero;
 
@@ -339,7 +364,7 @@ class JouissanceController extends Controller
                                     $logs->DATEOP = date("Y-m-d H:i:s");
                                     $logs->USERID = Yii::$app->user->identity->IDUSER;
                                     $logs->USERNAME = Yii::$app->user->identity->NOM;
-                                    $logs->OPERATION = "Création jouissance totale numero ".$model->ID_ABSENCE;
+                                    $logs->OPERATION = "Création jouissance totale numero ".$model->IDNATURE;
                                     $logs->save(false);
 
                                     return $this->redirect(['valider', 'id' => $model->IDNATURE]);
@@ -560,6 +585,8 @@ class JouissanceController extends Controller
 
         $date1 = strtotime($decision->DEBUTPLANIF); $date2 = strtotime($decision->FINPLANIF);
 
+        $plateforme = Etablissement::findOne($model->PLATEFORME);
+
         $diff = $date2 - $date1; $nbjour = abs(round($diff/86400)) + 1;
 
         $nom = $employe->NOM.' '.$employe->PRENOM;
@@ -583,6 +610,10 @@ class JouissanceController extends Controller
 
         $reprise = date('Y-m-d',strtotime($model->FIN.' +1 day'));
 
+        $today = date("Y-m-d");
+
+        $jour_date = date("d M Y", strtotime($today));
+
         // recherche et confirmation de la validation
 
         if($model->TYPES == "01") {
@@ -602,6 +633,7 @@ class JouissanceController extends Controller
             $texte = str_replace('{direction}',$direction,$texte);
             $texte = str_replace('{plateforme}',$lieu,$texte);
             $texte = str_replace('{service}',$service,$texte);
+            $texte = str_replace('{signataire}',$model->SIGNATAIRE,$texte);
             $texte = str_replace('{decision}',$decision->REF_DECISION,$texte); 
             $texte = str_replace('{datevalid}',$this->trueDate($decision->DATEVAL),$texte); 
             $texte = str_replace('{datedebut}',$this->trueDate2($model->DEBUT),$texte);
@@ -648,6 +680,7 @@ class JouissanceController extends Controller
             $texte = str_replace('{direction}',$direction,$texte);
             $texte = str_replace('{plateforme}',$lieu,$texte);
             $texte = str_replace('{service}',$service,$texte);
+            $texte = str_replace('{signataire}',$model->SIGNATAIRE,$texte);
             $texte = str_replace('{decision}',$decision->REF_DECISION,$texte); 
             $texte = str_replace('{datevalid}',$this->trueDate($decision->DATEVAL),$texte); 
             $texte = str_replace('{datedebut}',$this->trueDate2($model->DEBUT),$texte); 
@@ -684,6 +717,7 @@ class JouissanceController extends Controller
             $texte = str_replace('{direction}',$direction,$texte);
             $texte = str_replace('{plateforme}',$lieu,$texte);
             $texte = str_replace('{service}',$service,$texte);
+            $texte = str_replace('{signataire}',$model->SIGNATAIRE,$texte);
             $texte = str_replace('{decision}',$decision->REF_DECISION,$texte); 
             $texte = str_replace('{datevalid}',$this->trueDate($decision->DATEVAL),$texte); 
             $texte = str_replace('{datedebut}',$this->trueDate2($decision->DEBUTPLANIF),$texte); 
@@ -723,6 +757,7 @@ class JouissanceController extends Controller
             $texte = str_replace('{direction}',$direction,$texte);
             $texte = str_replace('{plateforme}',$lieu,$texte);
             $texte = str_replace('{service}',$service,$texte);
+            $texte = str_replace('{signataire}',$model->SIGNATAIRE,$texte);
             $texte = str_replace('{decision}',$decision->REF_DECISION,$texte);
             $texte = str_replace('{datevalid}',$this->trueDate($decision->DATEVAL),$texte);
             $texte = str_replace('{datedebut}',$this->trueDate2($model->DEBUT),$texte);
@@ -771,6 +806,7 @@ class JouissanceController extends Controller
             $texte = str_replace('{direction}',$direction,$texte);
             $texte = str_replace('{plateforme}',$lieu,$texte);
             $texte = str_replace('{service}',$service,$texte);
+            $texte = str_replace('{signataire}',$model->SIGNATAIRE,$texte);
             $texte = str_replace('{decision}',$decision->REF_DECISION,$texte);
             $texte = str_replace('{datevalid}',$this->trueDate($decision->DATEVAL),$texte);
             $texte = str_replace('{datedebut}',$this->trueDate2($model->DEBUTREPORT),$texte);
@@ -788,13 +824,17 @@ class JouissanceController extends Controller
         <head><title>'.$titre.' -  '.$model->NUMERO.'</title></head> <body style="background: #ffffff; font-family: Arial, Helvetica, sans-serif"> 
         <table border="0" cellpadding="0" cellspacing="0"  width="100%" style="color: #000000; font-size: 14px; border:0px solid #000000">';
 
-        $builder.='<tr><td height="80" style="padding: 5px" style="padding: 5px;" align="left"><img src="../web/img/logo.png" width="200px" height="auto" /></td><td style="padding: 5px" style="padding: 5px; font-weight: bold"></td></tr> <tr><td colspan="2" height="20px"></td></tr>';
+        $builder.='<tr><td colspan="2" height="140"></td></tr>';
 
-        $builder.='<tr><td colspan="2" height="30px" style="text-align: center; padding-top: 10px; padding-left: 10px; padding-bottom: 10px; padding-right: 10px; font-weight: bold; line-height: 20px; font-size:21px"><u>'.$model->TITRE.'</u></td></tr> <tr><td colspan="2" height="20px"></td></tr>';
+        $builder.='<tr><td colspan="2" height="30px" style="text-align: center; padding-top: 10px; padding-left: 10px; padding-bottom: 10px; padding-right: 10px; font-weight: bold; line-height: 20px; font-size:21px; border:1px solid #000000">'.$model->TITRE.'</td></tr>';
 
-        $builder.='<tr><td colspan="2" height="40px" style="text-align: left; padding-top: 10px; padding-left: 120px; padding-bottom: 10px; padding-right: 10px; font-size:18px; line-height: 20px">N '.$model->NUMERO.'</td></tr> <tr><td colspan="2" height="20px"></td></tr>';
+        $builder.='<tr><td colspan="2" height="20px" style="text-align: center; padding-top: 10px; font-size:14px; line-height: 20px">N° '.$model->NUMERO.'</td></tr> <tr><td colspan="2" height="20px"></td></tr>';
 
-        $builder.='<tr><td colspan="2" height="60px" style="text-align: left; padding-top: 10px; padding-left: 10px; padding-bottom: 10px; padding-right: 10px; font-size:16px;  line-height: 28px">'.nl2br($texte).'</td></tr> <tr><td colspan="2" height="30px"></td></tr>';
+        $builder.='<tr><td colspan="2" height="60px" style="text-align: justify; padding-top: 10px; padding-left: 10px; padding-bottom: 10px; padding-right: 10px; font-size:16px;  line-height: 28px">'.nl2br($texte).'</td></tr> <tr><td colspan="2" height="30px"></td></tr>';
+
+        $builder.='<tr><td colspan="2" height="20px"></td></tr><tr><td height="30" style="padding: 5px" style="padding: 5px;" ></td><td style="padding: 5px" style="padding: 5px; font-weight: normal; font-style: italic" align="right">Fait &agrave; '.$plateforme->LIBELLE.' le  '.self::trueDate2($today).'</td></tr>';
+
+        $builder.='<tr><td colspan="2" height="20px"></td></tr><tr><td height="30" style="padding: 5px" style="padding: 5px;" ></td><td style="padding: 5px" style="padding: 5px; font-weight: bold; text-transform: uppercase" align="right">'.$model->SIGNATAIRE.'</td></tr>';
 
 
         if($employe->CODEETS == "DLA") {
@@ -830,7 +870,7 @@ class JouissanceController extends Controller
         <td colspan="2" height="30px" style="text-align: left; padding-left: 200px"> <b>'.$model->DOCUMENT4.'</b><br>   </td></tr>
         
         <tr><td height="50px" style="text-align: left; padding: 10px;">
-        <u><b>Ampliations</b></u><br>
+        <u><b>Copies</b></u><br>
         <div style="margin-left: 30px; font-size: 11px">'.nl2br($tamp).'</div>
         </td>
         <td style="text-align: left"></td></tr>
@@ -855,9 +895,22 @@ class JouissanceController extends Controller
             //'content' => $builder,
             // set mPDF properties on the fly
             'options' => ['title' => 'Jouissance numero '.$model->IDNATURE],
+            'methods' => [
+                'SetTitle' => 'Jouissance de congés',
+                'SetSubject' => '',
+                'SetAuthor' => 'ADC',
+                'SetCreator' => 'ADC',
+                'SetKeywords' => 'ADC',
+                'SetHeader'=>['<div style="text-align: left;  height: 100px"><img src="../web/img/logo1.png" width="220px" height="auto" /></div>'],
+                'SetFooter'=>['<div style="text-align: center; color:#000000;  border-top:1px solid #000000;   font-size: 12px"><br>Siège Social : Aéroport International de Yaoundé – Nsimalen – BP 13615 Yaoundé<br>Tél. : (237) 222 23 36 02 / 222 23 45 21 – Fax (237) 222 23 45 20</div>'],
+            ],
         ]);
 
         $mpdf = $pdf->api;
+
+        $mpdf->SetHTMLHeader('<div style="text-align: left;  height: 100px"><img src="../web/img/logo1.png" width="220px" height="auto" /></div>',true);
+
+        $mpdf->SetHTMLFooter('<div style="text-align: center; color:#000000; border-top:1px solid #000000;  font-size: 12px"><br>Siège Social : Aéroport International de Yaoundé – Nsimalen – BP 13615 Yaoundé<br>Tél. : (237) 222 23 36 02 / 222 23 45 21 – Fax (237) 222 23 45 20</div>',true);
 
         $mpdf->WriteHtml($builder);
 
@@ -1004,7 +1057,31 @@ class JouissanceController extends Controller
 
                             $setting = Parametre::findOne(1);
 
-                            $numero = $this->getDecisionNumber($decision->ANNEEEXIGIBLE)." - ".$setting->TIMBREJOUISSANCE."".$model->timbre."".Yii::$app->user->identity->INITIAL;
+                            $timbre = "";
+
+                            $employe = \app\models\Employe::findOne($decision->MATICULE);
+
+                            if ($employe->CODEETS_EMB == "DLA") {
+                                $di = \app\models\Direction::findOne($employe->DIRECTION);
+                                if (($di != null) && strpos($di->LIBELLE, 'Exploitation') !== false) {
+                                    $ampliation = \app\models\Ampliation::findOne(8);
+                                } else {
+                                    $ampliation = \app\models\Ampliation::findOne(3);
+                                }
+        
+                            } else if ($employe->CODEETS_EMB == "NSI") {
+                                $di = \app\models\Direction::findOne($employe->DIRECTION);
+                                if (($di != null) && strpos($di->LIBELLE, 'International') !== false) {
+                                    $ampliation = \app\models\Ampliation::findOne(7);
+                                } else {
+                                    $ampliation = \app\models\Ampliation::findOne(9);
+                                }
+                            } else  $ampliation = \app\models\Ampliation::findOne(['VILLE' => $employe->CODEETS_EMB]);
+        
+                            if(($ampliation->TIMBRE != null) && !empty($ampliation->TIMBRE) ) $timbre = $ampliation->TIMBRE;
+                            else $timbre = $setting->TIMBREJOUISSANCE;
+
+                            $numero = $this->getDecisionNumber($decision->ANNEEEXIGIBLE)." - ".$timbre."".$model->timbre."".Yii::$app->user->identity->INITIAL;
 
                             $model->NUMERO = $numero;
 

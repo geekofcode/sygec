@@ -116,7 +116,7 @@ $habilation = Habilitation::find()->where(['CODEROLE'=>$compte->ROLE,'CODEMENU'=
                     $employe = Employe::find()->where(["MATRICULE"=>$decision->MATICULE])->one();
                     if($employe != null) {
                         $d = \app\models\Direction::findOne($employe->DIRECTION);
-                        return $d->LIBELLE; }else return  "";
+                        if($d == null) return $d->LIBELLE; else return ""; }else return  "";
 
                 },
             ],
@@ -155,7 +155,7 @@ $habilation = Habilitation::find()->where(['CODEROLE'=>$compte->ROLE,'CODEMENU'=
                     $employe = Employe::find()->where(["MATRICULE"=>$decision->MATICULE])->one();
                     if($employe != null) {
                         $d = \app\models\Service::findOne($employe->SERVICE);
-                        return $d->LIBELLE; } else return  "";
+                        if($d != null) return $d->LIBELLE; else return ""; } else return  "";
                 },
             ],
             //'FICHIER',

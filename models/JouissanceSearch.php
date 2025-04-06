@@ -24,7 +24,7 @@ class JouissanceSearch extends Jouissance
     {
         return [
             [['IDNATURE', 'IDDECISION', 'USERCREATE'], 'integer'],
-            [['TITRE', 'NUMERO', 'DEBUT', 'FIN', 'MESSAGE', 'LIEU', 'JOUR', 'TYPES', 'DOCUMENT', 'DATECREATION', 'EXERCICE','direction','service','departement','employe'], 'safe'],
+            [['TITRE', 'NUMERO', 'DEBUT', 'FIN', 'MESSAGE', 'LIEU', 'JOUR', 'TYPES', 'DOCUMENT', 'DATECREATION', 'EXERCICE','direction','service','departement','employe','PLATEFORME','STATUT'], 'safe'],
         ];
     }
 
@@ -101,6 +101,8 @@ class JouissanceSearch extends Jouissance
             'IDDECISION' => $this->IDDECISION,
             'DATECREATION' => $this->DATECREATION,
             'USERCREATE' => $this->USERCREATE,
+            'PLATEFORME' => $this->PLATEFORME,
+            'STATUT' => $this->STATUT,
             'TYPES' => $this->TYPES
         ]);
 

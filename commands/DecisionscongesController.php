@@ -2,6 +2,7 @@
 
 namespace app\commands;
 
+use app\controllers\Generator;
 use yii\console\Controller;
 use yii\console\ExitCode;
 use Yii;
@@ -62,15 +63,15 @@ class DecisioncongesController extends \yii\web\Controller
 
             if($departement != null) $dpt = $departement->LIBELLE; else $dpt = "";
 
-            $message.="- Decision numero ".$decision->REF_DECISION." concernant ".$nom.". Departement : ".$dpt."<br><br>";
+            $message.="- Décision numéro ".$decision->REF_DECISION." concernant ".$nom.". Département : ".$dpt."<br><br>";
 
         }
 
         \Yii::$app
             ->mailer->compose()
-            ->setTo("support@adc-cm.com")
-            ->setFrom([\Yii::$app->params['supportEmail'] => 'Anafor'])
-            ->setSubject("Decision de conges non validees")
+            ->setTo("emmanuel.gbetkom@adcsa.aero")
+            ->setFrom([\Yii::$app->params['supportEmail'] => 'ADC Conges'])
+            ->setSubject("Decision de congés non validées")
             ->setHtmlBody($message)
             ->send();
 
@@ -78,4 +79,6 @@ class DecisioncongesController extends \yii\web\Controller
 
         return ExitCode::OK;
     }
+
+
 }

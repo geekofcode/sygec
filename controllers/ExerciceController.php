@@ -385,7 +385,8 @@ class ExerciceController extends Controller
 
                                     $nbpermission = $employe->SOLDEAVANCE;
 
-                                    $nbjour = $setting->DUREECONGES - $nbpermission;
+                                    if($employe->CODEEMP == 273 || $employe->CODEEMP == 462) $nbjour = $setting->DUREECONGES2 - $nbpermission;
+                                    else $nbjour = $setting->DUREECONGES - $nbpermission;
 
                                     $direction2 = Direction::findOne($employe->DIRECTION);
                                     $service2 = Service::findOne($employe->SERVICE);
@@ -395,7 +396,7 @@ class ExerciceController extends Controller
                                     $service_value = $service2 != null ? $service2->LIBELLE:"";
                                     $dpt_value = $mdpt != null ? $mdpt->LIBELLE:"";
 
-                                    if ($nbjour >= 1) {
+                                    if ($nbjour >= 0) {
 
                                         $datefin = date('d/m/Y', strtotime($debut . ' + ' . ($nbjour - 1) . ' days'));
                                         $datedebut = date('d/m/Y', strtotime($debut));
@@ -520,9 +521,11 @@ class ExerciceController extends Controller
 
                                 $nbpermission = $employe->SOLDEAVANCE;
 
-                                $nbjour = $setting->DUREECONGES - $nbpermission;
+                                //$nbjour = $setting->DUREECONGES - $nbpermission;
+                                if($employe->CODEEMP == 273 || $employe->CODEEMP == 462) $nbjour = $setting->DUREECONGES2 - $nbpermission;
+                                else $nbjour = $setting->DUREECONGES - $nbpermission;
 
-                                if ($nbjour >= 1) {
+                                if ($nbjour >= 0) {
 
 
                                     $datefin = date('Y-m-d', strtotime($debut . ' + ' . ($nbjour - 1) . ' days'));
@@ -546,7 +549,9 @@ class ExerciceController extends Controller
 
                                     $decision->save(false);
 
-                                    $numero = $this->getDecisionNumber($exo)." - ".$setting->SUFFIXEREF."".Yii::$app->user->identity->INITIAL;
+                                    if($employe->TIMBRE != null) $code = date("Y")."/".$employe->TIMBRE; else $code = $setting->SUFFIXEREF;
+
+                                    $numero = $this->getDecisionNumber($exo)." - ".$code."".Yii::$app->user->identity->INITIAL;
 
                                     // $currentd = Dec
 
@@ -591,8 +596,7 @@ class ExerciceController extends Controller
                                     $debutservice = date('d/m/Y', strtotime($debutservice));
                                     $finservice = date('d/m/Y', strtotime($finservice));
 
-                                    $builder .= '<tr style="border-bottom: 1px solid #ffffff"><td style="padding: 5px">' . $numero . '</td><td style="padding: 5px">' . $employe->MATRICULE . '</td><td style="padding: 5px">' . $employe->NOM . ' ' . $employe->PRENOM . '</td><td style="padding: 5px">Du '.$debutservice.' au '.$finservice.'</td><td style="padding: 5px">' . $debut . '</td><td style="padding: 5px">' . $datefin . '</td><td style="padding: 5px">' . $embauche . '</td><td style="padding: 5px">' . $emploie . '</td><td style="padding: 5px">' . $nbpermission . '</td><td style="padding: 5px">' . $employe->SOLDECREDIT . '</td></tr>';
-
+                                    $builder .= '<tr style="border-bottom: 1px solid #ffffff"><td style="padding: 5px">' . $numero . '</td><td style="padding: 5px">' . $employe->MATRICULE . '</td><td style="padding: 5px">' . $employe->NOM . ' ' . $employe->PRENOM . '</td><td style="padding: 5px">Du '.$debutservice.' au '.$finservice.'</td><td style="padding: 5px">' . $debut . '</td><td style="padding: 5px">' . $datefin . '</td><td style="padding: 5px">' . $emploie . '</td><td style="padding: 5px">' . $embauche . '</td><td style="padding: 5px">' . $nbpermission . '</td><td style="padding: 5px">' . $employe->SOLDECREDIT . '</td></tr>';
 
                                 }
 
@@ -836,7 +840,7 @@ class ExerciceController extends Controller
 
         $decision = Decisionconges::find()->where(['ANNEEEXIGIBLE'=>$exercice])->all();
 
-        $total = count($decision); $next = $total + 1;
+        $total = count($decision); $next = $total;
 
         $position = 4 - strlen($next);
 

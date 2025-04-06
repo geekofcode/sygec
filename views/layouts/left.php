@@ -25,7 +25,7 @@ use app\models\Habilitation;
         $org = array("M20","M21","M8");
         $cong = array("M4","M5","M14","M7","M9","M11","M19");
         $rh = array("M3","M10","M12");
-        $secure = array("M2","M17","M16","M6","M13","M18");
+        $secure = array("M2","M17","M16","M6","M13","M18","M22");
 
         $menu_org = array(); $menu_cong = array(); $menu_rh = array(); $menu_sec = array(); $menu_other = array();
 

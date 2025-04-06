@@ -60,7 +60,7 @@ class PasswordResetRequestForm extends Model
                 ['html' => 'passwordResetToken-html', 'text' => 'passwordResetToken-text'],
                 ['user' => $user]
             )
-            ->setFrom([Yii::$app->params['supportEmail'] => 'ADC'])
+            ->setFrom([Yii::$app->params['supportEmail'] => 'SYGEC'])
             ->setTo($this->email)
             ->setSubject('Reinitialisation mot de passe')
             ->send();

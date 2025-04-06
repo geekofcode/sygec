@@ -551,6 +551,23 @@ class DecisioncongesController extends Controller
 
     }
 
+    public function actionGenerer1($id){
+
+        $filename = Generator::decision1($id);
+
+        $logs = new Loges();
+        $logs->DATEOP = date("Y-m-d H:i:s");
+        $logs->USERID = Yii::$app->user->identity->IDUSER;
+        $logs->USERNAME = Yii::$app->user->identity->NOM;
+        $logs->OPERATION = "Generation modele d'edition decision numero ".$id;
+        $logs->save(false);
+
+        Yii::$app->session->setFlash('success', 'Modèle d\'édition crée avec succès : <a href="../web/uploads/'.$filename.'" target="_blank">Ouvrir</a>');
+
+        return $this->redirect(['decisionconges/update', 'id' => $id, 'table' => 'T6']);
+
+    }
+
     function getDecisionNumber($exercice){
 
         $decision = Decisionconges::find()->where(['ANNEEEXIGIBLE'=>$exercice])->all();
@@ -579,6 +596,8 @@ class DecisioncongesController extends Controller
 
         $destination = $repertoire."/".$name;
 
+        $lienfinal = "http://185.163.126.231/web/uploads/".$name;
+
         if($zip->open($destination,\ZIPARCHIVE::CREATE) !== true) {
 
             return false;
@@ -589,6 +608,8 @@ class DecisioncongesController extends Controller
             $model = Decisionconges::findOne((int)$id);
 
             $filename = Generator::decision($model->ID_DECISION);
+
+            sleep(10);
 
             $cheminf = $repertoire."/".$filename;
 
@@ -612,7 +633,7 @@ class DecisioncongesController extends Controller
         $logs->OPERATION = "Generation modeles d'edition pour l'historique ".$historique->ID;
         $logs->save(false);
 
-        Yii::$app->session->setFlash('success', 'Modèles d\'édition crées avec succès. <a href="'.$destination.'" target="_blank">Ouvrir le ZIP </a>');
+        Yii::$app->session->setFlash('success', 'Modèles d\'édition crées avec succès. <a href="'.$lienfinal.'" target="_blank">Ouvrir le ZIP </a>');
 
         return $this->redirect(['decisionconges/index','table' => 'T6']);
 
@@ -649,7 +670,7 @@ class DecisioncongesController extends Controller
             $output = fopen("php://output", "w");
 
             //output the column headings
-            fputcsv($output, array('REFERENCE DECISION','EMPLOYE','DEBUT SERVICE','FIN SERVICE', 'DEBUT CONGE','FIN CONGE','NOMBRE DE JOURS','DATE EMISSION','DATE REPRISE', 'PROCHAIN CONGE', 'DATE DE NAISSANCE',  'COMMENTAIRE', 'STATUT','DIRECTION','DEPARTEMENT','SERVICE'),",");
+            fputcsv($output, array('REFERENCE DECISION','MATRICULE','EMPLOYE','DEBUT SERVICE','FIN SERVICE', 'DEBUT CONGE','FIN CONGE','NOMBRE DE JOURS','DATE EMISSION','DATE REPRISE', 'PROCHAIN CONGE', 'DATE DE NAISSANCE',  'COMMENTAIRE', 'STATUT','DIRECTION','DEPARTEMENT','SERVICE'),",");
 
             // creation du fichier d'export
 
@@ -658,32 +679,35 @@ class DecisioncongesController extends Controller
                 $employe = Employe::findOne($absence->MATICULE);
                // $typeabs = Typeabsence::findOne($absence->CODEABS);
 
-                if($employe->CODEDPT != null) {
+                if($employe != null) {
+                    if($employe->CODEDPT != null) {
 
-                    $mdpt = Departements::findOne($employe->CODEDPT); $dpt = $mdpt->LIBELLE;
+                        $mdpt = Departements::findOne($employe->CODEDPT); $dpt = $mdpt->LIBELLE;
 
-                } else $dpt = "";
+                    } else $dpt = "";
 
-                $date1 = strtotime($absence->DEBUTPLANIF); $date2 = strtotime($absence->FINPLANIF);
+                    $date1 = strtotime($absence->DEBUTPLANIF); $date2 = strtotime($absence->FINPLANIF);
 
-                $diff = $date2 - $date1; $nbjour = abs(round($diff/86400)) + 1;
+                    $diff = $date2 - $date1; $nbjour = abs(round($diff/86400)) + 1;
 
-                if($absence->EDITION != null) $edition = "EN COURS"; else $edition = "BROUILLON";
+                    if($absence->EDITION != null) $edition = "EN COURS"; else $edition = "BROUILLON";
 
-                $direction = Direction::findOne($employe->DIRECTION);
-                $service = Service::findOne($employe->SERVICE);
+                    $direction = Direction::findOne($employe->DIRECTION);
+                    $service = Service::findOne($employe->SERVICE);
 
-                $tab2 = array();
+                    $tab2 = array();
 
-                $tab2[] = $absence->REF_DECISION; $tab2[] = $employe->getFullname(); $tab2[] = $absence->DEBUTREELL;
-                $tab2[] = $absence->FINREEL; $tab2[] = $absence->DEBUTPLANIF; $tab2[] = $absence->FINPLANIF; $tab2[] = $nbjour;
-                $tab2[] = $absence->DATEEMIS; $tab2[] = $absence->DATEREPRISE;
-                $tab2[] = $absence->DATECLOTURE; $tab2[] = $employe->DATNAISS;
-                $tab2[] = $absence->COMMENTAIRE; $tab2[] = $edition;
-                $tab2[] = ($direction != null)?$direction->LIBELLE:""; $tab2[] = $dpt;
-                $tab2[] = ($service != null)?$service->LIBELLE:"";
+                    $tab2[] = $absence->REF_DECISION;  $tab2[] = $employe->MATRICULE; $tab2[] = $employe->getFullname();
+                    $tab2[] = $absence->DEBUTREELL;
+                    $tab2[] = $absence->FINREEL; $tab2[] = $absence->DEBUTPLANIF; $tab2[] = $absence->FINPLANIF; $tab2[] = $nbjour;
+                    $tab2[] = $absence->DATEEMIS; $tab2[] = $absence->DATEREPRISE;
+                    $tab2[] = $absence->DATECLOTURE; $tab2[] = $employe->DATNAISS;
+                    $tab2[] = $absence->COMMENTAIRE; $tab2[] = $edition;
+                    $tab2[] = ($direction != null)?$direction->LIBELLE:""; $tab2[] = $dpt;
+                    $tab2[] = ($service != null)?$service->LIBELLE:"";
 
-                fputcsv($output, $tab2, ",");
+                    fputcsv($output, $tab2, ",");
+                }
 
             }
 

@@ -28,10 +28,8 @@ class Emploi extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['CODEEMP'], 'required'],
-            [['CODEEMP'], 'string', 'max' => 5],
+            [['LIBELLE'], 'required'],
             [['LIBELLE'], 'string', 'max' => 50],
-            [['CODEEMP'], 'unique'],
         ];
     }
 
@@ -41,7 +39,7 @@ class Emploi extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'CODEEMP' => 'Codeemp',
+            'CODEEMP' => 'ID',
             'LIBELLE' => 'Libelle',
         ];
     }

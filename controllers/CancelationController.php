@@ -136,7 +136,7 @@ class CancelationController extends Controller
                 $decision = Decisionconges::findOne($jouissance->IDDECISION);
                 $employe = Employe::findOne($decision->MATICULE);
 
-                // $employe->SOLDECREDIT = $employe->SOLDECREDIT + $model->PERIODE; $employe->save(false);
+                 $employe->SOLDECREDIT = $employe->SOLDECREDIT + $model->PERIODE; $employe->save(false);
 
                 if ($model->DOCUMENTFILE != null) $model->DOCUMENTFILE->saveAs('../web/uploads/' . $model->DOCUMENTFILE->baseName . '.' . $model->DOCUMENTFILE->extension);
 

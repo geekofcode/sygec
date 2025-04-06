@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Departements;
+use app\models\Jouissance;
 use app\models\Direction;
 use app\models\Employe;
 use app\models\Etablissement;
@@ -18,7 +19,6 @@ use app\models\Exercice;
 use app\models\PasswordResetRequestForm;
 use app\models\ResetPasswordForm;
 use app\models\Absenceponctuel;
-use app\models\Jouissance;
 use app\models\Emploi;
 use app\models\Decisionconges;
 
@@ -186,24 +186,20 @@ class SiteController extends Controller
     public function actionExport1() {
 
         $jour = date("Y-m-d");
+        $fileName = "reporting-" . $jour. ".txt";
 
-        $csvfile = "reporting-".$jour.".csv";
+        header("Content-Disposition: attachment; filename=\"$fileName\"");
+        //header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        //header("Content-Type: application/vnd.ms-excel");
+        //header('Content-type: application/ms-excel');
+        //header("Content-Type: text/plain");
 
-        //output header
-        header("Content-type: text/x-csv");
-        header("Content-type: text/csv");
-        header("Content-type: application/csv");
-        header("Content-Disposition: attachment; filename=".$csvfile."");
-        header("Pragma: no-cache");
-        header("Expires: 0");
+        $fields = array('MATRICULE','NOM','EXERCICE','PERMISSION IMPUTABLE (Jrs)', 'PERMISSION NON IMPUTABLE (Jrs)','JOUISSANCE','NON JOUISSANCE','CREDIT CONGES (Jrs)','PROCHAIN CONGE', 'DIRECTION', 'DEPARTEMENT',  'SERVICE', 'POSTE','STATUT', 'CONGES PLANIFIES');
 
-        // create file pointer
-       $output = fopen("php://output", "w");
+        // Display column names as first row
+        $excelData = implode("\t", array_values($fields)) . "\n";
 
-        //output the column headings
-       fputcsv($output, array('MATRICULE','NOM','EXERCICE','PERMISSION IMPUTABLE (Jrs)', 'PERMISSION NON IMPUTABLE (Jrs)','JOUISSANCE','NON JOUISSANCE','CREDIT CONGÉS (Jrs)','PROCHAIN CONGÉ', 'DIRECTION', 'DEPARTEMENT',  'SERVICE', 'POSTE','STATUT'),",");
-
-        $query = "SELECT * FROM EMPLOYE WHERE MATRICULE IS NOT NULL ";
+        $query = "SELECT * FROM employe WHERE MATRICULE IS NOT NULL ";
 
         if(isset($_REQUEST["matricule"]) && !empty($_REQUEST["matricule"])) {
             $query.=" AND MATRICULE = '$_REQUEST[matricule]'";
@@ -239,7 +235,7 @@ class SiteController extends Controller
 
         $query.=" ORDER BY NOM ASC";
 
-       $employes = Employe::findBySql($query)->all();
+        $employes = Employe::findBySql($query)->all();
 
         if(isset($_REQUEST["exercice"]) && ($_REQUEST["exercice"] != 0)) {
             $exo =  Exercice::findOne($_REQUEST["exercice"]);
@@ -250,7 +246,7 @@ class SiteController extends Controller
 
             $tab2 = array();
             $tab2[] = $employe->MATRICULE;
-            $tab2[] = $employe->NOM." ".$employe->PRENOM;
+            $tab2[] = utf8_decode($employe->NOM." ".$employe->PRENOM);
             $tab2[] = $exo->ANNEEEXIGIBLE;
 
             $abscences = Absenceponctuel::find()->where(['MATICULE'=>$employe->MATRICULE,'ANNEEEXIGIBLE'=>$exo->ANNEEEXIGIBLE,'IMPUTERCONGES'=>1,'STATUT'=>'V'])->all();
@@ -344,27 +340,60 @@ class SiteController extends Controller
             else $tab2[] = "";
 
             $direction = Direction::findOne($employe->DIRECTION);
-            if($direction != null) $tab2[] = utf8_encode($direction->LIBELLE); else $tab2[] = "";
+            if($direction != null) $tab2[] = utf8_decode($direction->LIBELLE); else $tab2[] = "";
 
             $departement = Departements::findOne($employe->CODEDPT);
-            if($departement != null) $tab2[] = utf8_encode($departement->LIBELLE); else $tab2[] = "";
+            if($departement != null) $tab2[] = utf8_decode($departement->LIBELLE); else $tab2[] = "";
 
             $service = Service::findOne($employe->SERVICE);
-            if($service != null) $tab2[] = utf8_encode($service->LIBELLE); else $tab2[] = "";
+            if($service != null) $tab2[] = utf8_decode($service->LIBELLE); else $tab2[] = "";
 
             $emploi = Emploi::findOne($employe->CODEEMP);
-            if($emploi != null) $tab2[] = utf8_encode($emploi->LIBELLE); else $tab2[] = "";
+            if($emploi != null) $tab2[] = utf8_decode($emploi->LIBELLE); else $tab2[] = "";
 
             if($employe->STATUT == 1) $tab2[] = "ACTIF"; else $tab2[] = "INACTIF";
 
-            fputcsv($output, $tab2,",");
+            $dec = Decisionconges::find()->where(['MATICULE'=>$employe->MATRICULE,'ANNEEEXIGIBLE' => $_REQUEST["exercice"]])->one();
 
+            if($dec != null) {
+                $tab2[] = $dec->NBJOUR;
+            } else {
+                $tab2[] = 0;
+            }
+
+            $excelData .= implode("\t", array_values($tab2)) . "\n";
 
         }
 
-       fclose($output);
+
+
+
+        // Render excel data
+        echo $excelData;
 
         exit;
+
+        /*
+
+        $csvfile = "reporting-".$jour.".csv";
+        //output header
+        header("Content-type: text/x-csv");
+        header("Content-type: text/csv");
+        header("Content-type: application/csv");
+        header("Content-Disposition: attachment; filename=".$csvfile."");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+
+        // create file pointer
+       $output = fopen("php://output", "w");
+
+        //output the column headings
+       fputcsv($output, array('MATRICULE','NOM','EXERCICE','PERMISSION IMPUTABLE (Jrs)', 'PERMISSION NON IMPUTABLE (Jrs)','JOUISSANCE','NON JOUISSANCE','CREDIT CONGÉS (Jrs)','PROCHAIN CONGÉ', 'DIRECTION', 'DEPARTEMENT',  'SERVICE', 'POSTE','STATUT'),",");
+
+
+       fclose($output);
+
+        exit;*/
     }
 
     public function actionPage(){

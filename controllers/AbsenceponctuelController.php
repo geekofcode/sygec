@@ -459,7 +459,7 @@ class AbsenceponctuelController extends Controller
 
                    $diff = $date2 - $date1; $nbjour = abs(round($diff/86400)) + 1;
 
-                   $abscences = \app\models\Absenceponctuel::find()->where(['MATICULE'=>$employe->MATRICULE,'ANNEEEXIGIBLE'=>$model->ANNEEEXIGIBLE,'STATUT'=>'V','IMPUTERCONGES'=>1,'TYPE_DEMANDE'=>0])->all();
+                   $abscences = \app\models\Absenceponctuel::find()->where(['MATICULE'=>$employe->MATRICULE,'ANNEEEXIGIBLE'=>$model->ANNEEEXIGIBLE,'STATUT'=>'V','IMPUTERCONGES'=>1])->all();
 
                     $nbpermission = 0;
 
@@ -508,7 +508,7 @@ class AbsenceponctuelController extends Controller
 
                          else {
 
-                             $abscencs = \app\models\Absenceponctuel::find()->where(['MATICULE'=>$employe->MATRICULE,'ANNEEEXIGIBLE'=>$model->ANNEEEXIGIBLE,'STATUT'=>'V','IMPUTERCONGES'=>1,'TYPE_DEMANDE'=>1,'DEJA'=>0])->all();
+                             $abscencs = \app\models\Absenceponctuel::find()->where(['MATICULE'=>$employe->MATRICULE,'STATUT'=>'V','IMPUTERCONGES'=>1,'TYPE_DEMANDE'=>1,'DEJA'=>0])->all();
 
                              $nbpermission2 = 0;
 
@@ -520,8 +520,9 @@ class AbsenceponctuelController extends Controller
                              $nbpermission2+= $model->DUREE;
 
                              $jourheureconge = (int)($nbpermission2 / 8);
+                             $restes = $nbpermission2 % 8;
 
-                             if($jourheureconge > 1) {
+                             if($restes == 0) {
 
                                  foreach ($abscencs as $abscenc) {
                                      $abscenc->DEJA = 1;
@@ -535,6 +536,24 @@ class AbsenceponctuelController extends Controller
                                  $employe->save(false);
 
                                  $model->DEJA = 1;
+
+                             }
+
+                             else if($restes != $nbpermission2) {
+
+                                 foreach ($abscencs as $abscenc) {
+                                     $abscenc->DEJA = 1;
+                                     $abscenc->save(false);
+                                 }
+
+                                 $employe = Employe::findOne($model->MATICULE);
+
+                                 $employe->SOLDEAVANCE = $employe->SOLDEAVANCE + $jourheureconge;
+
+                                 $employe->save(false);
+
+                                 $model->DEJA = 0;
+                                 $model->DUREE = $restes;
 
                              }
 

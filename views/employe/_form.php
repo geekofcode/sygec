@@ -52,7 +52,6 @@ if(!$model->isNewRecord) {
 
     <?= $form->field($model, 'SITMAT')->dropDownList(ArrayHelper::map(\app\models\Sitmat::find()->all(),"CODESIT","LIBELLE"),['prompt'=>'Choisir']) ?>
 
-
     <?= $form->field($model, 'CODECONT')->dropDownList(ArrayHelper::map(Contrat::find()->all(),"CODECONT","LIBELLE"),['prompt'=>'Choisir']) ?>
 
     <?= $form->field($model, 'NOM')->textInput(['maxlength' => true]) ?>
@@ -156,6 +155,10 @@ if(!$model->isNewRecord) {
     <?= $form->field($model, 'COMMENTAIRE')->textarea() ?>
 
     <?= $form->field($model, 'RH')->dropDownList([1=>'OUI',0=>'NON'],['prompt'=>'Choisir']); ?>
+
+    <?= $form->field($model, 'AMPLIATION')->textarea(['rows' => 6]) ?>
+
+    <?= $form->field($model, 'TIMBRE')->textInput(['maxlength' => true]) ?>
 
     <div class="form-group">
         <?= Html::submitButton('Enregistrer', ['class' => 'btn btn-success']) ?>
