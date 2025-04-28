@@ -383,7 +383,7 @@ class DecisioncongesController extends Controller
                         $jeune = isset($data[3]) ? utf8_encode($data[3]) : '';
                         $prenom = isset($data[4]) ? utf8_encode($data[4]) : '';
                         $datnaiss = isset($data[5]) ? utf8_encode($data[5]) : '';
-                        $statut = isset($data[6]) ? utf8_encode($data[6]) : '';
+                        $sitmat = isset($data[6]) ? utf8_encode($data[6]) : '';
                         $enfant = isset($data[7]) ? utf8_encode($data[7]) : '';
                         $date_embauche = isset($data[8]) ? utf8_encode($data[8]) : '';
                         $affectation = isset($data[9]) ? utf8_encode($data[9]) : '';
@@ -402,9 +402,9 @@ class DecisioncongesController extends Controller
 
                         $ex_cat = Categorie::findOne($categorie);
                         $ex_echellon = Echellon::findOne($echelon);
-                        $civ = Civilite::find()->where(["LIKE", "LIBELLE", $civilite])->one();
+                        //$civ = Civilite::findOne($civilite);
                         $cont = Contrat::find()->where(["LIKE", "CODECONT", $contrat])->one();
-                        $sit = Sitmat::find()->where(["LIKE", "LIBELLE", $statut])->one();
+                        //$sit = Sitmat::findOne($statut);
                         $et1 = Etablissement::find()->where(["CODEETS" => $affectation])->one();
                         $et2 = Etablissement::find()->where(["CODEETS" => $embauche])->one();
                         $job = Emploi::find()->where(["LIKE", "LIBELLE", $fonction])->one();
@@ -477,23 +477,26 @@ class DecisioncongesController extends Controller
 
                         // creation ou mise a jour de l'employe
 
+                        echo "Debut creation du conges \n\r";
 
                         if($debutConge != null && !empty(trim($debutConge)) && $finConge != null && !empty(trim($finConge)) && ($debutConge != "*") && ($finConge != "*")) {
 
-
+                            echo "Condition conges ok \n\r";
 
                             $user = Employe::findOne(["MATRICULE" => $matricule]);
 
                             if ($user != null) {
 
+                                echo "Employe existant \n\r";
+
                                 $user->CODECAT = $ca;
                                 $user->CODEECH = $ec;
                                 $user->CODEEMP = $jo;
                                 $user->CODEETS = ($et1 != null) ? $et1->CODEETS : null;
-                                $user->CODECIV = ($civ != null) ? $civ->CODECIV : null;
+                                $user->CODECIV = $civilite;
                                 $user->CODECONT = ($cont != null) ? $cont->CODECONT : null;
                                 $user->CODEETS_EMB = ($et2 != null) ? $et2->CODEETS : null;
-                                $user->SITMAT = ($sit != null) ? $sit->CODESIT : null;
+                                $user->SITMAT = $sitmat;
                                 if (!empty($nom)) $user->NOM = $nom;
                                 if (!empty($prenom)) $user->PRENOM = $prenom;
                                 $user->CODEDPT = $de;
@@ -505,7 +508,9 @@ class DecisioncongesController extends Controller
                                 $user->STATUT = 1;
                                 if (!empty($jeune)) $user->JEUNEFILLE = $jeune;
                                 $user->save(false);
-                            } else if ($user == null && !empty($nom) && !empty($categorie) && !empty($echelon) && !empty($fonction) && !empty($contrat) && !empty($statut) && !empty($date_embauche) && !empty($affectation) && !empty($embauche) && !empty($direction) && !empty($departement) && !empty($service)) {
+                            } else {
+
+                                echo "Nouvel employe \n\r";
 
                                 $emp = new Employe();
 
@@ -514,7 +519,7 @@ class DecisioncongesController extends Controller
                                 $emp->CODEECH = ($ex_echellon != null) ? $ex_echellon->CODEECH : null;
                                 $emp->CODEEMP = $jo;
                                 $emp->CODEETS = ($et1 != null) ? $et1->CODEETS : null;
-                                $emp->CODECIV = ($civ != null) ? $civ->CODECIV : null;
+                                $emp->CODECIV = $civilite;
                                 $emp->CODECONT = ($cont != null) ? $cont->CODECONT : null;
                                 $emp->CODEETS_EMB = ($et2 != null) ? $et2->CODEETS : null;
                                 $emp->NOM = $nom;
@@ -530,7 +535,7 @@ class DecisioncongesController extends Controller
                                 $emp->DIRECTION = $di;
                                 $emp->RH = 0;
                                 $emp->ENFANT = $enfant;
-                                $emp->SITMAT = ($sit != null) ? $sit->CODESIT : null;
+                                $emp->SITMAT = $sitmat;
                                 $emp->JEUNEFILLE = $jeune;
                                 $emp->VILLE = null;
                                 $emp->SERVICE = $se;
@@ -541,9 +546,12 @@ class DecisioncongesController extends Controller
 
                             // creation ou mise a jour de la decision
 
+                            echo "Recherche decision \n\r";
+
                             $decision1 = Decisionconges::find(["MATICULE" => $matricule, "ANNEEEXIGIBLE" => $exercice])->one();
 
                             if ($decision1 != null) {
+                                echo "Suppression decision existante \n\r";
                                 Jouissance::deleteAll(["IDDECISION" => $decision1->ID_DECISION]);
                                 $decision1->delete();
                             }
@@ -556,6 +564,8 @@ class DecisioncongesController extends Controller
                             $diff = $date2 - $date1;
                             $nbjour = abs(round($diff / 86400)) + 1;
 
+
+                            echo "Creation nouvelle decision \n\r";
 
                             $decision = new Decisionconges();
                             $decision->MATICULE = $matricule;
@@ -574,9 +584,14 @@ class DecisioncongesController extends Controller
                             $decision->NBJOUR = $nbjour;
                             $decision->IDUSER = 1;
                             $decision->FICHIER = 2;
-                            $decision->save(false);
 
-                            echo "Generation de la decision " . $decision->ID_DECISION . " \n";
+                            if($decision->save(false)) {
+                                echo "Generation de la decision " . $decision->ID_DECISION . " \n";
+                            }
+                            else {
+                                echo "Erreur " . $decision->getErrors() . " \n";
+                            }
+
                         }
 
                     }

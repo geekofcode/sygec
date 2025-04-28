@@ -38,7 +38,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <li>Pour les civilités vous devez remplacer, Monsieur par MR, Madame par MME et Mademoiselle par MLLE</li> <br/>
             <li>Pour les situations matrimoniales vous devez remplacer, Célibataire par 001, Marié par 002, Divorcé par 004 et veuf par 003</li> <br/>
             <li>Pour ce qui est des lieux d'embauche et d'affectation, vous devez remplacer les lieux par leur numero d'ampliations (A regarder dans le menu Ampliations), par ex : Douala sera remplacé par DLA, et Bamenda par BDA,..</li><br/>
-            <li>Les colonnes départements, services ne doivent pas être vide, si aucune valeur, mettre * </li> <br/>
+            <li>Les colonnes de type texte ne doivent pas être vide, si aucune valeur, mettre * </li> <br/>
         </ul>
         </p>
 
