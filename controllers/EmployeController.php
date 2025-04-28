@@ -220,216 +220,68 @@ class EmployeController extends Controller
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 
-    public function actionImport(){
+    public function actionImportation(){
 
         if (Yii::$app->user->isGuest) {
             return $this->redirect(['site/login']);
         }
 
-        if(isset($_REQUEST["imp"])){
+        return $this->render('import');
+    }
 
-            $uploaddir = '../web/uploads/';
+    public function actionImport() {
 
-            $file_name = $_FILES['fichier']['tmp_name'];
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
-            $uploadfile2 = $uploaddir . basename($_FILES['fichier']['name']);
+        $uploadedFile = \yii\web\UploadedFile::getInstanceByName('fichier');
 
-            move_uploaded_file($_FILES['fichier']['tmp_name'], $uploadfile2);
+        if ($uploadedFile) {
+            // Définir le chemin du fichier temporaire
+            $tempFilePath = Yii::getAlias('@runtime/uploads/') . $uploadedFile->name;
 
-            // lecture du fichier
-
-            @ini_set("memory_limit","5096M");
-
-            require_once(Yii::getAlias('@vendor/phpexcel/php-excel-reader/excel_reader2.php'));
-
-            require_once(Yii::getAlias('@vendor/phpexcel/SpreadsheetReader.php'));
-
-            $Spreadsheet = new \SpreadsheetReader('../web/uploads/'.$_FILES['fichier']['name']);
-
-            $BaseMem = memory_get_usage(); $errormessage = ""; $error = true;
-
-            $Sheets = $Spreadsheet -> Sheets(); $i = 0; $tab = array();
-
-            foreach ($Sheets as $Index => $Name)
-            {
-
-                $Spreadsheet -> ChangeSheet($Index);
-
-                foreach ($Spreadsheet as $Key => $Row)
-                {
-
-                    if($i != 0) {
-
-                        if(!empty($Row[0])) {
-
-                            $matricule = utf8_encode($Row[0]);
-                            $civilite = isset($Row[1]) ? utf8_encode($Row[1]) : '';
-                            $nom = isset($Row[2]) ? utf8_encode($Row[2]) : '';
-                            $jeune = isset($Row[3]) ? utf8_encode($Row[3]) : '';
-                            $prenom = isset($Row[4]) ? utf8_encode($Row[4]) : '';
-                            $datnaiss = isset($Row[5]) ? utf8_encode($Row[5]) : '';
-                            $statut = isset($Row[6]) ? utf8_encode($Row[6]) : '';
-                            $enfant = isset($Row[7]) ? utf8_encode($Row[7]) : '';
-                            $date_embauche = isset($Row[8]) ? utf8_encode($Row[8]) : '';
-                            $affectation = isset($Row[9]) ? utf8_encode($Row[9]) : '';
-                            $embauche = isset($Row[10]) ? utf8_encode($Row[10]) : '';
-                            $direction = isset($Row[11]) ? utf8_encode($Row[11]) : '';
-                            $departement = isset($Row[12]) ? utf8_encode($Row[12]) : '';
-                            $service = isset($Row[13]) ? utf8_encode($Row[13]) : '';
-                            $fonction = isset($Row[14]) ? utf8_encode($Row[14]) : '';
-                            $categorie = isset($Row[15]) ? utf8_encode($Row[15]) : '';
-                            $echelon = isset($Row[16]) ? utf8_encode($Row[16]) : '';
-                            $contrat = isset($Row[17]) ? utf8_encode($Row[17]) : '';
-                            $calcul = isset($Row[18]) ? utf8_encode($Row[18]) : '';
-                            //$statut = isset($Row[20]) ? utf8_encode($Row[20]) : '';
-
-                            $ex_cat = Categorie::findOne($categorie);
-                            $ex_echellon = Echellon::findOne($echelon);
-                            $civ = Civilite::find()->where(["LIKE","LIBELLE",$civilite])->one();
-                            $cont = Contrat::find()->where(["LIKE","CODECONT",$contrat])->one();
-                            $sit = Sitmat::find()->where(["LIKE","LIBELLE",$statut])->one();
-                            $et1 = Etablissement::find()->where(["CODEETS" => $affectation])->one();
-                            $et2 = Etablissement::find()->where(["CODEETS" => $embauche])->one();
-                            $job = Emploi::find()->where(["LIKE","LIBELLE",$fonction])->one();
-                            $dir = Direction::findOne($direction);
-                            $sev = Service::findOne($service);
-                            $dep = Departements::findOne($departement);
-
-                            $de = null; $di = null; $se = null; $jo = null; $ec = null; $ca = null;
-
-
-                            if($ex_cat == null && !empty($categorie)) {
-                                $ex_cat = new Categorie();
-                                $ex_cat->CODECAT = $categorie;
-                                $ex_cat->LIBELLE = $categorie;
-                                $ex_cat->save(false);
-                                $ca = $ex_cat->CODECAT;
-                            } else if($ex_cat != null) $ca = $ex_cat->CODECAT;
-
-                            if($job == null && !empty(trim($fonction))) {
-                                $job = new Emploi();
-                                $job->LIBELLE = $fonction;
-                                $job->save(false);
-                                $jo = $job->CODEEMP;
-                            } else if($job != null) $jo = $job->CODEEMP;
-
-                            if($ex_echellon == null && !empty($echelon)) {
-                                $ex_echellon = new Echellon();
-                                $ex_echellon->CODEECH = $echelon;
-                                $ex_echellon->LIBELLE = $echelon;
-                                $ex_echellon->save(false);
-                                $ec = $ex_echellon->CODEECH;
-                            } else if($ex_echellon != null) $ec = $ex_echellon->CODEECH;
-
-                            if($dir == null && !empty(trim($direction))) {
-                                $dir = new Direction();
-                                $dir->LIBELLE = $direction;
-                                $dir->save(false);
-                                $di = $dir->ID;
-                            } else if($dir != null) $di = $dir->ID;
-
-                            if($dep == null && !empty(trim($departement))) {
-                                $dep = new Departements();
-                                $dep->LIBELLE = $departement;
-                                $dep->save(false);
-                                $de = $dep->CODEDPT;
-                            } else if($dep != null) $de = $dep->CODEDPT;
-
-                            if($sev == null && !empty($service)) {
-                                $sev = new Service();
-                                $sev->LIBELLE = $service;
-                                $sev->save(false);
-                                $se = $sev->ID; 
-                            } else if($sev != null) $se = $sev->ID;
-
-                            if(strlen($matricule) < 5) {
-                                $prefix = "";
-                                for($i = 1; $i<= (5 - strlen($matricule)); $i++) {
-                                    $prefix.="0";
-                                }
-                                $matricule = $prefix."".$matricule;
-                            }
-
-                            if($calcul == null || empty(trim($calcul))) {
-                               $calcul = null;
-                            }
-
-                            $user = Employe::findOne(["MATRICULE"=>$matricule]);
-
-                            if($user != null) {
-
-                                $user->CODECAT = $ca;
-                                $user->CODEECH = $ec;
-                                $user->CODEEMP = $jo;
-                                $user->CODEETS = ($et1 != null) ? $et1->CODEETS : null;
-                                $user->CODECIV = ($civ != null) ? $civ->CODECIV : null;
-                                $user->CODECONT = ($cont != null) ? $cont->CODECONT : null;
-                                $user->CODEETS_EMB = ($et2 != null) ? $et2->CODEETS : null;
-                                $user->SITMAT = ($sit != null) ? $sit->CODESIT: null;
-                                if(!empty($nom)) $user->NOM = $nom;
-                                if(!empty($prenom)) $user->PRENOM = $prenom;
-                                $user->CODEDPT = $de;
-                                $user->DIRECTION = $di;
-                                $user->SERVICE = $se;
-                                $user->ENFANT = $enfant;
-                                $user->DATECALCUL = $calcul;
-                                $user->DATNAISS = $datnaiss;
-                                $user->DEPLACE = ($affectation != $embauche) ? 1 : 0;
-                                $user->STATUT = 1;
-                                if(!empty($jeune)) $user->JEUNEFILLE = $jeune;
-                                $user->save(false);
-                            }
-
-                            else if($user == null && !empty($nom) && !empty($categorie) && !empty($echelon) && !empty($fonction) && !empty($contrat) && !empty($statut) && !empty($date_embauche) && !empty($affectation) && !empty($embauche) && !empty($direction) && !empty($departement) && !empty($service)) {
-
-                                $emp = new Employe();
-
-                                $emp->MATRICULE = $matricule;
-                                $emp->CODECAT = ($ex_cat != null) ? $ex_cat->CODECAT : null;
-                                $emp->CODEECH = ($ex_echellon != null) ? $ex_echellon->CODEECH : null;
-                                $emp->CODEEMP = $jo;
-                                $emp->CODEETS = ($et1 != null) ? $et1->CODEETS : null;
-                                $emp->CODECIV = ($civ != null) ? $civ->CODECIV : null;
-                                $emp->CODECONT = ($cont != null) ? $cont->CODECONT : null;
-                                $emp->CODEETS_EMB = ($et2 != null) ? $et2->CODEETS : null;
-                                $emp->NOM = $nom;
-                                $emp->PRENOM = $prenom;
-                                $emp->DATEEMBAUCHE = $date_embauche;
-                                $emp->SOLDECREDIT = 0;
-                                $emp->SOLDEAVANCE = 0;
-                                $emp->DATECALCUL = $calcul;
-                                $emp->CODEDPT = $de;
-                                $emp->LASTCONGE = null;
-                                $emp->DEPLACE = ($affectation != $embauche) ? 1 : 0;
-                                $emp->DATNAISS = $datnaiss;
-                                $emp->STATUT = 1;
-                                $emp->DIRECTION = $di;
-                                $emp->RH = 0;
-                                $emp->ENFANT = $enfant;
-                                $emp->SITMAT = ($sit != null) ? $sit->CODESIT: null;
-                                $emp->JEUNEFILLE = $jeune;
-                                $emp->VILLE = null;
-                                $emp->SERVICE = $se;
-                                $emp->SOLDEAVANCE2 = 0;
-                                $emp->save(false);
-
-                            }
-                        }
-                    }
-
-                    $i++;
-                }
+            // Créer le répertoire s'il n'existe pas
+            if (!is_dir(Yii::getAlias('@runtime/uploads/'))) {
+                mkdir(Yii::getAlias('@runtime/uploads/'), 0777, true);
             }
 
-            unlink(('../web/uploads/'.$_FILES['fichier']['name']));
+            // Sauvegarder le fichier uploadé
+            if ($uploadedFile->saveAs($tempFilePath)) {
+                try {
 
-            Yii::$app->session->setFlash('success', 'Employés mis à jour avec succès.');
+                    // Build the console command
+                    $command = sprintf(
+                        'php %s/yii employe/import "%s" ',
+                        Yii::getAlias('@app'),
+                        $tempFilePath
+                    );
 
-            return $this->redirect(['index']);
+                    // Execute the command and capture the output
+                    $output = [];
+                    $returnVar = 0;
+                    exec($command, $output, $returnVar);
 
+                    // Delete the temporary file after processing
+                    unlink($tempFilePath);
+
+                    if ($returnVar === 0) {
+                        return ['success' => true, 'message' => 'Import des employes effectue avec succes', 'output' => $output];
+                    } else {
+                        return ['success' => false, 'message' => 'Command execution failed', 'output' => $output];
+                    }
+
+                } catch (\Exception $e) {
+                    // Supprimer le fichier temporaire en cas d'erreur
+                    unlink($tempFilePath);
+
+                    return ['success' => false, 'message' => $e->getMessage()];
+                }
+            } else {
+                return ['success' => false, 'message' => 'Failed to save the uploaded file.'];
+            }
         }
 
-        else return $this->render('import');
+        return ['success' => false, 'message' => 'No file uploaded.'];
+
     }
 
     public function actionImport2(){

@@ -3,13 +3,15 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use app\widgets\Alert;
+use app\models\Exercice;
+use yii\web\View;
 
 
 /* @var $this yii\web\View */
-/* @var $model app\models\Produits */
+/* @var $model app\models\Exercice */
 
-$this->title = 'Mise à jour des employés';
-$this->params['breadcrumbs'][] = ['label' => 'Employes', 'url' => ['index']];
+$this->title = 'Import de décisions de congés';
+$this->params['breadcrumbs'][] = ['label' => 'Décisions de congés', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="produits-create">
@@ -21,15 +23,29 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= Html::beginForm(['import'],'post',['id'=>'formsoumission','enctype' => 'multipart/form-data']);?>
 
     <div>
+    <label>Choisir l'exercice</label>
+    <select name="exercice" id="exercice" class="form-control" required >
+        <option value="" disabled selected>Faire un choix</option>
+        <?php
+
+        $exercices = Exercice::find()->orderBy(['ANNEEEXIGIBLE'=>SORT_DESC])->all();
+
+        foreach($exercices as $exercice) {
+
+            echo '<option value="'.$exercice->ANNEEEXIGIBLE.'">'.$exercice->ANNEEEXIGIBLE.'</option>';
+        }
+
+        ?>
+    </select></div> <br />
 
         <label>Fichier de donn&eacute;es &agrave; importer</label><br>
 
-        <input type="file" name="fichier" id="fichier" required accept=".xls,.xlsx" /> <br>
+        <input type="file" name="fichier" id="fichier" required accept=".csv" /> <br><br/>
 
         <p style="color: red">
         <ul>
             <li>
-                Le Modele de fichier de donn&eacute;es &agrave; importer : <a href="../web/tmp/tmp_decision.xlsx" target="_blank">Ici</a> ,  vous devez importer un fichier au format csv espacé par des points virgules, et non pas un fichier excel
+                Le Modele de fichier de donn&eacute;es &agrave; importer : <a href="../web/tmp/tmp_decision.xlsx" target="_blank">Ici</a>, vous devez importer un fichier au format csv espacé par des points virgules, et non pas un fichier excel
             </li> <br/>
             <li>
                 NB : Le fichier doit contenir les colonnes suivantes : MATRICULE, CIVILITE, NOM, NOM DE JEUNE FILLE, PRENOM, DATE DE NAISSANCE, SITUATION MATRIMONIALE, NOMBRE D'ENFANT, DATE D'EMBAUCHE, LIEU D'AFFECTATION, LIEU D'EMBAUCHE, DIRECTION, DEPARTEMENT, SERVICE, FONCTION, CATEGORIE, ECHELLON, CONTRAT, DEBUT DE SERVICE, FIN DE SERVICE, DEBUT DE CONGE, FIN DE CONGE
@@ -41,10 +57,10 @@ $this->params['breadcrumbs'][] = $this->title;
             <li>Les colonnes départements, services ne doivent pas être vide, si aucune valeur, mettre * </li> <br/>
         </ul>
         </p>
-
     </div>
 
     <input type="hidden" name="imp" id="imp" value="1" />
+
     <div class="form-group" id="zone_bt">
     <button type="submit" style="float: left" class="btn btn-success">Importer le fichier</button><br><br>
     </div>
@@ -54,9 +70,10 @@ $this->params['breadcrumbs'][] = $this->title;
 
 </div>
 
+
 <?php
 
-$lien = Yii::$app->getUrlManager()->createUrl('employe/import');
+$lien = Yii::$app->getUrlManager()->createUrl('decisionconges/import');
 
 $script = <<< JS
 

@@ -2,9 +2,17 @@
 
 namespace app\controllers;
 
+use app\models\Categorie;
+use app\models\Civilite;
+use app\models\Contrat;
 use app\models\Direction;
+use app\models\Echellon;
+use app\models\Emploi;
+use app\models\Etablissement;
 use app\models\Historique;
+use app\models\Jouissance;
 use app\models\Service;
+use app\models\Sitmat;
 use Yii;
 use app\models\Decisionconges;
 use app\models\DecisioncongesSearch;
@@ -636,6 +644,72 @@ class DecisioncongesController extends Controller
         Yii::$app->session->setFlash('success', 'Modèles d\'édition crées avec succès. <a href="'.$lienfinal.'" target="_blank">Ouvrir le ZIP </a>');
 
         return $this->redirect(['decisionconges/index','table' => 'T6']);
+
+    }
+
+    public function actionImportation(){
+
+        if (Yii::$app->user->isGuest) {
+            return $this->redirect(['site/login']);
+        }
+
+        return $this->render('import');
+    }
+
+    public function actionImport() {
+
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $exercice =Yii::$app->request->post('exercice');
+        $uploadedFile = \yii\web\UploadedFile::getInstanceByName('fichier');
+
+        if ($uploadedFile) {
+            // Définir le chemin du fichier temporaire
+            $tempFilePath = Yii::getAlias('@runtime/uploads/') . $uploadedFile->name;
+
+            // Créer le répertoire s'il n'existe pas
+            if (!is_dir(Yii::getAlias('@runtime/uploads/'))) {
+                mkdir(Yii::getAlias('@runtime/uploads/'), 0777, true);
+            }
+
+            // Sauvegarder le fichier uploadé
+            if ($uploadedFile->saveAs($tempFilePath)) {
+                try {
+
+                    // Build the console command
+                    $command = sprintf(
+                        'php %s/yii decisionconges/import "%s" "%s"',
+                        Yii::getAlias('@app'),
+                        $tempFilePath,
+                        $exercice
+                    );
+
+                    // Execute the command and capture the output
+                    $output = [];
+                    $returnVar = 0;
+                    exec($command, $output, $returnVar);
+
+                    // Delete the temporary file after processing
+                    unlink($tempFilePath);
+
+                    if ($returnVar === 0) {
+                        return ['success' => true, 'message' => 'Import des decisions de conges effectue avec succes', 'output' => $output];
+                    } else {
+                        return ['success' => false, 'message' => 'Command execution failed', 'output' => $output];
+                    }
+
+                } catch (\Exception $e) {
+                    // Supprimer le fichier temporaire en cas d'erreur
+                    unlink($tempFilePath);
+
+                    return ['success' => false, 'message' => $e->getMessage()];
+                }
+            } else {
+                return ['success' => false, 'message' => 'Failed to save the uploaded file.'];
+            }
+        }
+
+        return ['success' => false, 'message' => 'No file uploaded.'];
 
     }
 

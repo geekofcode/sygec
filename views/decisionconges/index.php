@@ -34,10 +34,9 @@ $habilation = Habilitation::find()->where(['CODEROLE'=>$compte->ROLE,'CODEMENU'=
 
         <?php  if($habilation->ACREATE == 1) echo Html::a('GÉNÉRER DES DÉCISIONS DE CONGÉS', ['exercice/decision'], ['class' => 'btn btn-primary']) ?>
 
-        <?php //if($habilation->ACREATE == 1)  echo Html::submitButton('GÉNÉRER LES MODELES D\'ÉDITION', ['class' => 'btn btn-danger']);
-        ?>
+        <?php if($habilation->ACREATE == 1)   echo Html::a('IMPORTER DES DÉCISIONS DE CONGÉS', ['decisionconges/importation'], ['class' => 'btn btn-success']) ?>
 
-        <?php if($habilation->ADELETE == 1) echo Html::a('Exporter les décisions', ['export'], ['class' => 'btn btn-primary']) ?>
+        <?php if($habilation->ADELETE == 1) echo Html::a('EXPORTER LES DECISIONS', ['export'], ['class' => 'btn btn-primary']) ?>
         <br>
 
     </p>

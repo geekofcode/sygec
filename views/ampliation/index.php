@@ -41,6 +41,10 @@ $habilation = Habilitation::find()->where(['CODEROLE'=>$compte->ROLE,'CODEMENU'=
             ['class' => 'yii\grid\SerialColumn'],
 
             //'ID',
+            'NUMERO' => [
+                'header' => 'NUMERO ',
+                'attribute' => 'VILLE',
+            ],
             'VILLE'=>[
                 'header' => 'VILLE',
                 'attribute' => 'VILLE',

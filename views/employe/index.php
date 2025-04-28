@@ -32,7 +32,7 @@ $habilation = Habilitation::find()->where(['CODEROLE'=>$compte->ROLE,'CODEMENU'=
     <p>
         <?php if($habilation->ACREATE == 1) echo Html::a('Ajouter un employé', ['create'], ['class' => 'btn btn-success']) ?>
        &nbsp;&nbsp;
-        <?php if($habilation->ACREATE == 1) echo Html::a('Mis à jour des employés', ['import'], ['class' => 'btn btn-primary']) ?>
+        <?php if($habilation->ACREATE == 1) echo Html::a('Mis à jour des employés', ['importation'], ['class' => 'btn btn-primary']) ?>
     </p>
 
     <div style="overflow: auto;overflow-y: hidden; Height:?">

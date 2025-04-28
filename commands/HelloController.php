@@ -98,6 +98,7 @@ class HelloController extends Controller
             \Yii::$app
                 ->mailer->compose()
                 ->setFrom([\Yii::$app->params['supportEmail'] => 'SYGEC'])
+                //->setTo(["tsumbang@gmail.com"])
                 ->setTo(["emmanuel.gbetkom@adcsa.aero","nathalie.aboug@adcsa.aero","sandra.ayem@adcsa.aero","guillaume.bissek@adcsa.aero","pierrette.atcham@adcsa.aero"])
                 ->setSubject("Modèles d'éditions")
                 ->setHtmlBody($content)
@@ -162,5 +163,91 @@ class HelloController extends Controller
             }
 
         }
+    }
+
+    public function actionGenerate2() {
+
+        $decisions = \app\models\Decisionconges::find()->where(["FICHIER" => 2])->orderBy(["ID_DECISION"=>SORT_DESC])->all();
+
+        $zip = new \ZipArchive();   $repertoire = './web/uploads';
+        $name = round(microtime(true)).".zip";
+        $destination = $repertoire."/".$name;
+        if($zip->open($destination,\ZIPARCHIVE::CREATE) !== true) {
+            return false;
+        }
+
+        foreach ($decisions as $decision) {
+
+            $filename = Generator::decision($decision->ID_DECISION);
+
+            if(empty($filename)) echo "Model de déicions ".$decision->ID_DECISION." vide : ".$filename." \n";
+
+            else {
+
+                echo "Model de déicions ".$decision->ID_DECISION." généré avec succès : ".$filename. "\n";
+
+                $cheminf = $repertoire."/".$filename;
+
+                $zip->addFile($cheminf,$filename);
+            }
+        }
+
+        $zip->close();
+
+        $content = '<!Doctype html>
+
+        <html>
+
+        <head>
+
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+
+        </head>
+
+        <body style="font-family: Calibri; font-size: 14px">
+
+        <div>
+
+            <div style="line-height: 20px">
+
+            <span>Bonjour Monsieur/Madame , <br><br>Bien vouloir trouver ci-joint les modèles d\'éditions de décisions..</span><br><br>
+
+         <br><br>Bien &agrave; vous.</span><br><br>       
+
+            </div>
+
+        </div>
+
+        </body>
+
+        </html>';
+
+        try{
+
+            //"tsumbang@gmail.com",
+
+            \Yii::$app
+                ->mailer->compose()
+                ->setFrom([\Yii::$app->params['supportEmail'] => 'SYGEC'])
+                //->setTo(["tsumbang@gmail.com"])
+                ->setTo(["emmanuel.gbetkom@adcsa.aero","nathalie.aboug@adcsa.aero","sandra.ayem@adcsa.aero","guillaume.bissek@adcsa.aero","pierrette.atcham@adcsa.aero"])
+                ->setSubject("Modèles d'éditions")
+                ->setHtmlBody($content)
+                ->attach($destination)
+                ->send();
+
+            echo "Export ok \n";
+
+        }
+
+        catch(\Swift_SwiftException $exception) {
+            echo $exception->getMessage()." \n";
+        }
+
+        catch(\Exception $exception){
+            echo $exception->getMessage()." \n";
+        }
+
+        return ExitCode::OK;
     }
 }
