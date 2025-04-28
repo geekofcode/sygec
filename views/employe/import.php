@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use app\widgets\Alert;
+use yii\web\View;
 
 
 /* @var $this yii\web\View */
@@ -29,10 +30,10 @@ $this->params['breadcrumbs'][] = $this->title;
         <p style="color: red">
         <ul>
             <li>
-                Le Modele de fichier de donn&eacute;es &agrave; importer : <a href="../web/tmp/tmp_decision.xlsx" target="_blank">Ici</a> ,  vous devez importer un fichier au format csv espacé par des points virgules, et non pas un fichier excel
+                Le Modele de fichier de donn&eacute;es &agrave; importer : <a href="../web/tmp/tmp_employe.xlsx" target="_blank">Ici</a> ,  vous devez importer un fichier au format csv espacé par des points virgules, et non pas un fichier excel
             </li> <br/>
             <li>
-                NB : Le fichier doit contenir les colonnes suivantes : MATRICULE, CIVILITE, NOM, NOM DE JEUNE FILLE, PRENOM, DATE DE NAISSANCE, SITUATION MATRIMONIALE, NOMBRE D'ENFANT, DATE D'EMBAUCHE, LIEU D'AFFECTATION, LIEU D'EMBAUCHE, DIRECTION, DEPARTEMENT, SERVICE, FONCTION, CATEGORIE, ECHELLON, CONTRAT, DEBUT DE SERVICE, FIN DE SERVICE, DEBUT DE CONGE, FIN DE CONGE
+                NB : Le fichier doit contenir les colonnes suivantes : MATRICULE, CIVILITE, NOM, NOM DE JEUNE FILLE, PRENOM, DATE DE NAISSANCE, SITUATION MATRIMONIALE, NOMBRE D'ENFANT, DATE D'EMBAUCHE, LIEU D'AFFECTATION, LIEU D'EMBAUCHE, DIRECTION, DEPARTEMENT, SERVICE, FONCTION, CATEGORIE, ECHELLON, CONTRAT, PROCHAIN CONGE
             </li> <br/>
             <li>Toutes les colonnes de date doivent être de type Date avec le format (YYYY-MM-DD), ex: 2025-04-25, aucune d'elle ne doit être vide ou null</li> <br/>
             <li>Pour les civilités vous devez remplacer, Monsieur par MR, Madame par MME et Mademoiselle par MLLE</li> <br/>

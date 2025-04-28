@@ -377,28 +377,28 @@ class DecisioncongesController extends Controller
 
                         echo "ligne " . $data[0] . "\n\r\n\r";
 
-                        $matricule = utf8_encode($data[0]);
-                        $civilite = isset($data[1]) ? utf8_encode($data[1]) : '';
-                        $nom = isset($data[2]) ? utf8_encode($data[2]) : '';
-                        $jeune = isset($data[3]) ? utf8_encode($data[3]) : '';
-                        $prenom = isset($data[4]) ? utf8_encode($data[4]) : '';
-                        $datnaiss = isset($data[5]) ? utf8_encode($data[5]) : '';
-                        $sitmat = isset($data[6]) ? utf8_encode($data[6]) : '';
-                        $enfant = isset($data[7]) ? utf8_encode($data[7]) : '';
-                        $date_embauche = isset($data[8]) ? utf8_encode($data[8]) : '';
-                        $affectation = isset($data[9]) ? utf8_encode($data[9]) : '';
-                        $embauche = isset($data[10]) ? utf8_encode($data[10]) : '';
-                        $direction = isset($data[11]) ? utf8_encode($data[11]) : '';
-                        $departement = isset($data[12]) ? utf8_encode($data[12]) : '';
-                        $service = isset($data[13]) ? utf8_encode($data[13]) : '';
-                        $fonction = isset($data[14]) ? utf8_encode($data[14]) : '';
-                        $categorie = isset($data[15]) ? utf8_encode($data[15]) : '';
-                        $echelon = isset($data[16]) ? utf8_encode($data[16]) : '';
-                        $contrat = isset($data[17]) ? utf8_encode($data[17]) : '';
-                        $debutService = isset($data[18]) ? utf8_encode($data[18]) : '';
-                        $finService = isset($data[19]) ? utf8_encode($data[19]) : '';
-                        $debutConge = isset($data[20]) ? utf8_encode($data[20]) : '';
-                        $finConge = isset($data[21]) ? utf8_encode($data[21]) : '';
+                        $matricule = $data[0];
+                        $civilite = isset($data[1]) ? $data[1] : '';
+                        $nom = isset($data[2]) ? $data[2] : '';
+                        $jeune = isset($data[3]) ? $data[3] : '';
+                        $prenom = isset($data[4]) ?  $data[4] : '';
+                        $datnaiss = isset($data[5]) ? $data[5] : '';
+                        $sitmat = isset($data[6]) ? $data[6] : '';
+                        $enfant = isset($data[7]) ? $data[7] : '';
+                        $date_embauche = isset($data[8]) ? $data[8] : '';
+                        $affectation = isset($data[9]) ? $data[9] : '';
+                        $embauche = isset($data[10]) ? $data[10] : '';
+                        $direction = isset($data[11]) ? $data[11] : '';
+                        $departement = isset($data[12]) ? $data[12] : '';
+                        $service = isset($data[13]) ? $data[13] : '';
+                        $fonction = isset($data[14]) ? $data[14] : '';
+                        $categorie = isset($data[15]) ? $data[15] : '';
+                        $echelon = isset($data[16]) ? $data[16] : '';
+                        $contrat = isset($data[17]) ? $data[17] : '';
+                        $debutService = isset($data[18]) ? $data[18] : '';
+                        $finService = isset($data[19]) ? $data[19] : '';
+                        $debutConge = isset($data[20]) ? $data[20] : '';
+                        $finConge = isset($data[21]) ? $data[21] : '';
 
                         $ex_cat = Categorie::findOne($categorie);
                         $ex_echellon = Echellon::findOne($echelon);
@@ -408,9 +408,9 @@ class DecisioncongesController extends Controller
                         $et1 = Etablissement::find()->where(["CODEETS" => $affectation])->one();
                         $et2 = Etablissement::find()->where(["CODEETS" => $embauche])->one();
                         $job = Emploi::find()->where(["LIKE", "LIBELLE", $fonction])->one();
-                        $dir = Direction::findOne($direction);
-                        $sev = Service::findOne($service);
-                        $dep = Departements::findOne($departement);
+                        $dir = Direction::find()->where(["LIKE", "LIBELLE", $direction])->one();
+                        $sev = Service::find()->where(["LIKE", "LIBELLE", $service])->one();
+                        $dep = Departements::find()->where(["LIKE", "LIBELLE", $departement])->one();
 
                         $de = null;
                         $di = null;
@@ -487,7 +487,7 @@ class DecisioncongesController extends Controller
 
                             if ($user != null) {
 
-                                echo "Employe existant \n\r";
+                                echo "Employe existant ".$nom." ".$prenom."  \n\r";
 
                                 $user->CODECAT = $ca;
                                 $user->CODEECH = $ec;
@@ -510,7 +510,7 @@ class DecisioncongesController extends Controller
                                 $user->save(false);
                             } else {
 
-                                echo "Nouvel employe \n\r";
+                                echo "Nouvel employe ".$nom." ".$prenom." \n\r";
 
                                 $emp = new Employe();
 
@@ -548,12 +548,23 @@ class DecisioncongesController extends Controller
 
                             echo "Recherche decision \n\r";
 
-                            $decision1 = Decisionconges::find(["MATICULE" => $matricule, "ANNEEEXIGIBLE" => $exercice])->one();
+                            $decision1 = Decisionconges::find()->where(["MATICULE" => $matricule, "ANNEEEXIGIBLE" => $exercice])->all();
 
                             if ($decision1 != null) {
-                                echo "Suppression decision existante \n\r";
-                                Jouissance::deleteAll(["IDDECISION" => $decision1->ID_DECISION]);
-                                $decision1->delete();
+
+                                echo "Debut suppression decision existante \n\r";
+
+                                foreach($decision1 as $dec) {
+                                    $jouissance = Jouissance::find()->where(['IDDECISION' => $dec->ID_DECISION])->all();
+                                    if ($jouissance != null) {
+                                        foreach ($jouissance as $j) {
+                                            echo "Suppression jouissance existante \n\r";
+                                            $j->delete();
+                                        }
+                                    }
+                                    echo "Suppression decision existante \n\r";
+                                    $dec->delete();
+                                }
                             }
 
                             $numero = $this->getDecisionNumber($exercice) . " - " . $setting->SUFFIXEREF . "adm";

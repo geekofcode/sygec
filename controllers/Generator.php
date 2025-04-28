@@ -1736,9 +1736,9 @@ LE DIRECTEUR GENERAL<br>
 
         $civile = \app\models\Civilite::findOne($employe->CODECIV);
 
-        $finservice = $model->FINPLANIF;
+        $finservice = $model->FINPERIODE;
 
-        $debutservice = $model->DEBUTPLANIF;
+        $debutservice = $model->DEBUTPERIODE;
 
         $reprise = date('Y-m-d',strtotime($model->FINREEL.' +1 day'));
 

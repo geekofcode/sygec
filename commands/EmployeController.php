@@ -258,25 +258,25 @@ class EmployeController extends Controller
 
                     if(!empty($Row[0])) {
 
-                        $matricule = utf8_encode($Row[0]);
-                        $civ = isset($Row[1]) ? utf8_encode($Row[1]) : null;
-                        $nom = isset($Row[2]) ? utf8_encode($Row[2]) : '';
-                        $jeune = isset($Row[3]) ? utf8_encode($Row[3]) : '';
-                        $prenom = isset($Row[4]) ? utf8_encode($Row[4]) : '';
-                        $datnaiss = isset($Row[5]) ? utf8_encode($Row[5]) : '';
-                        $sit = isset($Row[6]) ? utf8_encode($Row[6]) : null;
-                        $enfant = isset($Row[7]) ? utf8_encode($Row[7]) : '';
-                        $date_embauche = isset($Row[8]) ? utf8_encode($Row[8]) : '';
-                        $affectation = isset($Row[9]) ? utf8_encode($Row[9]) : '';
-                        $embauche = isset($Row[10]) ? utf8_encode($Row[10]) : '';
-                        $direction = isset($Row[11]) ? utf8_encode($Row[11]) : '';
-                        $departement = isset($Row[12]) ? utf8_encode($Row[12]) : '';
-                        $service = isset($Row[13]) ? utf8_encode($Row[13]) : '';
-                        $fonction = isset($Row[14]) ? utf8_encode($Row[14]) : '';
-                        $categorie = isset($Row[15]) ? utf8_encode($Row[15]) : '';
-                        $echelon = isset($Row[16]) ? utf8_encode($Row[16]) : '';
-                        $contrat = isset($Row[17]) ? utf8_encode($Row[17]) : '';
-                        $calcul = isset($Row[18]) ? utf8_encode($Row[18]) : '';
+                        $matricule = $Row[0];
+                        $civ = isset($Row[1]) ? $Row[1] : null;
+                        $nom = isset($Row[2]) ? $Row[2] : '';
+                        $jeune = isset($Row[3]) ? $Row[3] : '';
+                        $prenom = isset($Row[4]) ? $Row[4] : '';
+                        $datnaiss = isset($Row[5]) ? $Row[5] : '';
+                        $sit = isset($Row[6]) ? $Row[6] : null;
+                        $enfant = isset($Row[7]) ? $Row[7] : '';
+                        $date_embauche = isset($Row[8]) ? $Row[8] : '';
+                        $affectation = isset($Row[9]) ? $Row[9] : '';
+                        $embauche = isset($Row[10]) ? $Row[10] : '';
+                        $direction = isset($Row[11]) ? $Row[11] : '';
+                        $departement = isset($Row[12]) ? $Row[12] : '';
+                        $service = isset($Row[13]) ? $Row[13] : '';
+                        $fonction = isset($Row[14]) ? $Row[14] : '';
+                        $categorie = isset($Row[15]) ? $Row[15] : '';
+                        $echelon = isset($Row[16]) ? $Row[16] : '';
+                        $contrat = isset($Row[17]) ? $Row[17] : '';
+                        $calcul = isset($Row[18]) ? $Row[18] : '';
 
                         $ex_cat = Categorie::findOne($categorie);
                         $ex_echellon = Echellon::findOne($echelon);
@@ -286,9 +286,9 @@ class EmployeController extends Controller
                         $et1 = Etablissement::find()->where(["CODEETS" => $affectation])->one();
                         $et2 = Etablissement::find()->where(["CODEETS" => $embauche])->one();
                         $job = Emploi::find()->where(["LIKE","LIBELLE",$fonction])->one();
-                        $dir = Direction::findOne($direction);
-                        $sev = Service::findOne($service);
-                        $dep = Departements::findOne($departement);
+                        $dir = Direction::find()->where(["LIKE", "LIBELLE", $direction])->one();
+                        $sev = Service::find()->where(["LIKE", "LIBELLE", $service])->one();
+                        $dep = Departements::find()->where(["LIKE", "LIBELLE", $departement])->one();
 
                         $de = null; $di = null; $se = null; $jo = null; $ec = null; $ca = null;
 
@@ -375,7 +375,7 @@ class EmployeController extends Controller
                             $user->save(false);
                         }
 
-                        else if($user == null && !empty($nom) && !empty($categorie) && !empty($echelon) && !empty($fonction) && !empty($contrat) && !empty($date_embauche) && !empty($affectation) && !empty($embauche) && !empty($direction) && !empty($departement) && !empty($service)) {
+                        else {
 
                             $emp = new Employe();
 
