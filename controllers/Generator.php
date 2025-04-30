@@ -1180,21 +1180,21 @@ LE DIRECTEUR GENERAL<br>
 
         $finservice = date('Y-m-d',strtotime($employe->DATECALCUL.' -1 day'));
 
-        $debutservice = date('Y-m-d',strtotime($employe->LASTCONGE.' +1 day'));
+        $debutservice = date('Y-m-d',strtotime($finservice.' -'.$setting->DUREESERVICE.' day'));
 
         $reprise = date('Y-m-d',strtotime($model->FINPLANIF.' +1 day'));
 
-        $vacance = $durer - $model->NBJOUR;
+        //$vacance = $durer - $model->NBJOUR;
 
         $nextconge = date('Y-m-d',strtotime($reprise.' +'.($setting->DUREESERVICE).' day'));
 
-        $nextconge = date('Y-m-d',strtotime($nextconge.' +'.($vacance).' day'));
+        //$nextconge = date('Y-m-d',strtotime($nextconge.' +'.($vacance).' day'));
 
         $next = self::ageEmploye($employe->DATNAISS,$nextconge);
 
         if($next < 0) $nextconge = null;
 
-        $employe->LASTCONGE = $model->FINPLANIF; $employe->DATECALCUL = $nextconge;
+        $employe->LASTCONGE = $model->DEBUTPLANIF; $employe->DATECALCUL = $nextconge;
 
         if($nextconge != null) $vnextconge = self::trueDate2($nextconge); else $vnextconge = "";
 
@@ -1752,13 +1752,13 @@ LE DIRECTEUR GENERAL<br>
 
         if($next < 0) $nextconge = null;
 
-        $employe->LASTCONGE = $model->DEBUTREELL; $employe->DATECALCUL = $nextconge;
+        $employe->LASTCONGE = $model->DEBUTPLANIF; $employe->DATECALCUL = $nextconge;
 
         if($nextconge != null) $vnextconge = self::trueDate2($nextconge); else $vnextconge = "";
 
         $date1 = new \DateTime($model->DEBUTPLANIF); $date2 = new \DateTime($finservice);
 
-       // if($date1 > $date2) {
+        if($date1 > $date2) {
 
             $employe->save(false);
 
@@ -2246,9 +2246,9 @@ LE DIRECTEUR GENERAL<br>
 
             return $filename;
             //return "ok";
-        // }
+         }
 
-        //else return "";
+        else return "";
 
     }
 }
