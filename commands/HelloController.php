@@ -9,6 +9,7 @@ namespace app\commands;
 
 use app\controllers\Generator;
 use app\models\Exercice;
+use app\models\Telechargement;
 use yii\console\Controller;
 use yii\console\ExitCode;
 
@@ -91,6 +92,10 @@ class HelloController extends Controller
 
         </html>';
 
+        $download = new Telechargement();
+        $download->fichier = $name;
+        $download->save(false);
+
         try{
 
             //"tsumbang@gmail.com",
@@ -98,7 +103,6 @@ class HelloController extends Controller
             \Yii::$app
                 ->mailer->compose()
                 ->setFrom([\Yii::$app->params['supportEmail'] => 'SYGEC'])
-                //->setTo(["tsumbang@gmail.com"])
                 ->setTo(["emmanuel.gbetkom@adcsa.aero","nathalie.aboug@adcsa.aero","sandra.ayem@adcsa.aero","guillaume.bissek@adcsa.aero","pierrette.atcham@adcsa.aero"])
                 ->setSubject("Modèles d'éditions")
                 ->setHtmlBody($content)
@@ -165,7 +169,7 @@ class HelloController extends Controller
         }
     }
 
-    public function actionGenerate2() {
+   /* public function actionGenerate2() {
 
         $decisions = \app\models\Decisionconges::find()->where(["FICHIER" => 2])->orderBy(["ID_DECISION"=>SORT_DESC])->all();
 
@@ -249,5 +253,5 @@ class HelloController extends Controller
         }
 
         return ExitCode::OK;
-    }
+    } */
 }

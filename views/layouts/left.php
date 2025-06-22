@@ -111,6 +111,10 @@ use app\models\Habilitation;
 
         ?>
 
+        <?php
+        $menu[] = ['label' => 'Téléchargement', 'icon' => 'download', 'url' => ['telechargement/index']];
+        ?>
+
         <?= dmstr\widgets\Menu::widget(
             [
                 'options' => ['class' => 'sidebar-menu tree', 'data-widget'=> 'tree'],

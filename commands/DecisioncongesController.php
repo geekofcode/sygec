@@ -620,7 +620,254 @@ class DecisioncongesController extends Controller
                 \Yii::$app
                     ->mailer->compose()
                     ->setFrom([\Yii::$app->params['supportEmail'] => 'SYGEC'])
-                     ->setTo(["emmanuel.gbetkom@adcsa.aero","nathalie.aboug@adcsa.aero","sandra.ayem@adcsa.aero","guillaume.bissek@adcsa.aero","pierrette.atcham@adcsa.aero"])
+                    ->setTo(["tsumbang@gmail.com"])
+                    // ->setTo(["emmanuel.gbetkom@adcsa.aero","nathalie.aboug@adcsa.aero","sandra.ayem@adcsa.aero","guillaume.bissek@adcsa.aero","pierrette.atcham@adcsa.aero"])
+                    ->setSubject("Import des decisions de conges")
+                    ->setHtmlBody("Import des decisions de conges effectue avec succes")
+                    ->send();
+
+                echo "Export ok \n";
+
+            }
+
+            catch(\Swift_SwiftException $exception) {
+                echo $exception->getMessage()." \n";
+            }
+
+            catch(\Exception $exception){
+                echo $exception->getMessage()." \n";
+            }
+
+        } else {
+            echo "Erreur d'ouverture du fichier \n";
+        }
+
+
+        return ExitCode::OK;
+    }
+
+    public function actionImport2($filePath, $exercice) {
+
+        echo "Debut du traitement\n\r";
+
+        if (!file_exists($filePath)) {
+            return "File not found: $filePath";
+        }
+
+        echo "Lecture parametre \n\r";
+
+        $setting = Parametre::findOne(1);
+
+        echo "Ouverture du fichier\n\r";
+
+        $fileHandler=fopen($filePath,'r');
+
+        if($fileHandler) {
+
+            echo "Debut du lecture\n\r";
+
+            $i = 0;
+
+            while (($data = fgetcsv($fileHandler, 1000, ";")) !== FALSE) {
+
+                if ($i != 0) {
+
+                    if (!empty($data[0])) {
+
+                        echo "ligne " . $data[0] . "\n\r\n\r";
+
+                        $matricule = $data[0];
+                        $civilite = isset($data[1]) ? $data[1] : '';
+                        $nom = isset($data[2]) ? $data[2] : '';
+                        $jeune = isset($data[3]) ? $data[3] : '';
+                        $prenom = isset($data[4]) ?  $data[4] : '';
+                        $datnaiss = isset($data[5]) ? $data[5] : '';
+                        $sitmat = isset($data[6]) ? $data[6] : '';
+                        $enfant = isset($data[7]) ? $data[7] : '';
+                        $date_embauche = isset($data[8]) ? $data[8] : '';
+                        $affectation = isset($data[9]) ? $data[9] : '';
+                        $embauche = isset($data[10]) ? $data[10] : '';
+                        $direction = isset($data[11]) ? $data[11] : '';
+                        $departement = isset($data[12]) ? $data[12] : '';
+                        $service = isset($data[13]) ? $data[13] : '';
+                        $fonction = isset($data[14]) ? $data[14] : '';
+                        $categorie = isset($data[15]) ? $data[15] : '';
+                        $echelon = isset($data[16]) ? $data[16] : '';
+                        $contrat = isset($data[17]) ? $data[17] : '';
+                        $debutService = isset($data[18]) ? $data[18] : '';
+                        $finService = isset($data[19]) ? $data[19] : '';
+                        $debutConge = isset($data[20]) ? $data[20] : '';
+                        $finConge = isset($data[21]) ? $data[21] : '';
+
+                        $ex_cat = Categorie::findOne($categorie);
+                        $ex_echellon = Echellon::findOne($echelon);
+                        //$civ = Civilite::findOne($civilite);
+                        $cont = Contrat::find()->where(["LIKE", "CODECONT", $contrat])->one();
+                        //$sit = Sitmat::findOne($statut);
+                        $et1 = Etablissement::find()->where(["CODEETS" => $affectation])->one();
+                        $et2 = Etablissement::find()->where(["CODEETS" => $embauche])->one();
+                        $job = Emploi::find()->where(["LIKE", "LIBELLE", $fonction])->one();
+                        $dir = Direction::find()->where(["LIKE", "LIBELLE", $direction])->one();
+                        $sev = Service::find()->where(["LIKE", "LIBELLE", $service])->one();
+                        $dep = Departements::find()->where(["LIKE", "LIBELLE", $departement])->one();
+
+                        $de = null;
+                        $di = null;
+                        $se = null;
+                        $jo = null;
+                        $ec = null;
+                        $ca = null;
+
+                        if ($ex_cat == null && !empty($categorie)) {
+                            $ex_cat = new Categorie();
+                            $ex_cat->CODECAT = $categorie;
+                            $ex_cat->LIBELLE = $categorie;
+                            $ex_cat->save(false);
+                            $ca = $ex_cat->CODECAT;
+                        } else if ($ex_cat != null) $ca = $ex_cat->CODECAT;
+
+                        if ($job == null && !empty(trim($fonction))) {
+                            $job = new Emploi();
+                            $job->LIBELLE = $fonction;
+                            $job->save(false);
+                            $jo = $job->CODEEMP;
+                        } else if ($job != null) $jo = $job->CODEEMP;
+
+                        if ($ex_echellon == null && !empty($echelon)) {
+                            $ex_echellon = new Echellon();
+                            $ex_echellon->CODEECH = $echelon;
+                            $ex_echellon->LIBELLE = $echelon;
+                            $ex_echellon->save(false);
+                            $ec = $ex_echellon->CODEECH;
+                        } else if ($ex_echellon != null) $ec = $ex_echellon->CODEECH;
+
+                        if ($dir == null && !empty(trim($direction))) {
+                            $dir = new Direction();
+                            $dir->LIBELLE = $direction;
+                            $dir->save(false);
+                            $di = $dir->ID;
+                        } else if ($dir != null) $di = $dir->ID;
+
+                        if ($dep == null && !empty(trim($departement))) {
+                            $dep = new Departements();
+                            $dep->LIBELLE = $departement;
+                            $dep->save(false);
+                            $de = $dep->CODEDPT;
+                        } else if ($dep != null) $de = $dep->CODEDPT;
+
+                        if ($sev == null && !empty($service)) {
+                            $sev = new Service();
+                            $sev->LIBELLE = $service;
+                            $sev->save(false);
+                            $se = $sev->ID;
+                        } else if ($sev != null) $se = $sev->ID;
+
+                        if (strlen($matricule) < 5) {
+                            $prefix = "";
+                            for ($i = 1; $i <= (5 - strlen($matricule)); $i++) {
+                                $prefix .= "0";
+                            }
+                            $matricule = $prefix . "" . $matricule;
+                        }
+
+                        if ($debutConge == null || empty(trim($debutConge))) {
+                            $debutConge = null;
+                        }
+
+                        // creation ou mise a jour de l'employe
+
+                        echo "Debut creation du conges \n\r";
+
+                        if($debutConge != null && !empty(trim($debutConge)) && $finConge != null && !empty(trim($finConge)) && ($debutConge != "*") && ($finConge != "*")) {
+
+                            echo "Condition conges ok \n\r";
+
+                            $user = Employe::findOne(["MATRICULE" => $matricule]);
+
+                            $lastconge = date('Y-m-d', strtotime($debutService . ' -1  days'));
+
+                            if ($user != null) {
+
+                                echo "Employe existant ".$nom." ".$prenom."  \n\r";
+
+                                $user->CODECAT = $ca;
+                                $user->CODEECH = $ec;
+                                $user->CODEEMP = $jo;
+                                $user->CODEETS = ($et1 != null) ? $et1->CODEETS : null;
+                                $user->CODECIV = $civilite;
+                                $user->CODECONT = ($cont != null) ? $cont->CODECONT : null;
+                                $user->CODEETS_EMB = ($et2 != null) ? $et2->CODEETS : null;
+                                $user->SITMAT = $sitmat;
+                                if (!empty($nom)) $user->NOM = $nom;
+                                if (!empty($prenom)) $user->PRENOM = $prenom;
+                                $user->CODEDPT = $de;
+                                $user->DIRECTION = $di;
+                                $user->SERVICE = $se;
+                                $user->ENFANT = $enfant;
+                                $user->DATNAISS = $datnaiss;
+                                $user->LASTCONGE = $lastconge;
+                                $user->DATECALCUL = $debutConge;
+                                $user->DEPLACE = ($affectation != $embauche) ? 1 : 0;
+                                $user->STATUT = 1;
+                                if (!empty($jeune)) $user->JEUNEFILLE = $jeune;
+                                $user->save(false);
+                            } else {
+
+                                echo "Nouvel employe ".$nom." ".$prenom." \n\r";
+
+                                $emp = new Employe();
+
+                                $emp->MATRICULE = $matricule;
+                                $emp->CODECAT = ($ex_cat != null) ? $ex_cat->CODECAT : null;
+                                $emp->CODEECH = ($ex_echellon != null) ? $ex_echellon->CODEECH : null;
+                                $emp->CODEEMP = $jo;
+                                $emp->CODEETS = ($et1 != null) ? $et1->CODEETS : null;
+                                $emp->CODECIV = $civilite;
+                                $emp->CODECONT = ($cont != null) ? $cont->CODECONT : null;
+                                $emp->CODEETS_EMB = ($et2 != null) ? $et2->CODEETS : null;
+                                $emp->NOM = $nom;
+                                $emp->PRENOM = $prenom;
+                                $emp->DATEEMBAUCHE = $date_embauche;
+                                $emp->SOLDECREDIT = 0;
+                                $emp->SOLDEAVANCE = 0;
+                                $emp->CODEDPT = $de;
+                                $emp->DEPLACE = ($affectation != $embauche) ? 1 : 0;
+                                $emp->DATNAISS = $datnaiss;
+                                $emp->STATUT = 1;
+                                $emp->DIRECTION = $di;
+                                $emp->RH = 0;
+                                $emp->ENFANT = $enfant;
+                                $emp->SITMAT = $sitmat;
+                                $emp->JEUNEFILLE = $jeune;
+                                $emp->VILLE = null;
+                                $emp->SERVICE = $se;
+                                $emp->LASTCONGE = $lastconge;
+                                $emp->DATECALCUL = $debutConge;
+                                $emp->SOLDEAVANCE2 = 0;
+                                $emp->save(false);
+
+                            }
+
+
+                        }
+
+                    }
+
+                }
+
+                $i++;
+            }
+
+
+            try{
+
+                //"tsumbang@gmail.com",
+
+                \Yii::$app
+                    ->mailer->compose()
+                    ->setFrom([\Yii::$app->params['supportEmail'] => 'SYGEC'])
+                    ->setTo(["tsumbang@gmail.com"])
+                    // ->setTo(["emmanuel.gbetkom@adcsa.aero","nathalie.aboug@adcsa.aero","sandra.ayem@adcsa.aero","guillaume.bissek@adcsa.aero","pierrette.atcham@adcsa.aero"])
                     ->setSubject("Import des decisions de conges")
                     ->setHtmlBody("Import des decisions de conges effectue avec succes")
                     ->send();

@@ -678,7 +678,7 @@ class DecisioncongesController extends Controller
 
                     // Build the console command
                     $command = sprintf(
-                        'php %s/yii decisionconges/import "%s" "%s"',
+                        'php %s/yii decisionconges/import2 "%s" "%s"',
                         Yii::getAlias('@app'),
                         $tempFilePath,
                         $exercice

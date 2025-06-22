@@ -1178,15 +1178,19 @@ LE DIRECTEUR GENERAL<br>
 
         $civile = \app\models\Civilite::findOne($employe->CODECIV);
 
-        $finservice = date('Y-m-d',strtotime($employe->DATECALCUL.' -1 day'));
+        //$finservice = date('Y-m-d',strtotime($employe->DATECALCUL.' -1 day'));
 
-        $debutservice = date('Y-m-d',strtotime($finservice.' -'.$setting->DUREESERVICE.' day'));
+        //$debutservice = date('Y-m-d',strtotime($finservice.' -'.$setting->DUREESERVICE.' day'));
+
+        $debutservice = date('Y-m-d',strtotime($employe->LASTCONGE.' +1 day'));
+
+        $finservice = date('Y-m-d',strtotime($debutservice.' +' .($setting->DUREESERVICE - 1).' days'));
 
         $reprise = date('Y-m-d',strtotime($model->FINPLANIF.' +1 day'));
 
         //$vacance = $durer - $model->NBJOUR;
 
-        $nextconge = date('Y-m-d',strtotime($reprise.' +'.($setting->DUREESERVICE).' day'));
+        $nextconge = date('Y-m-d',strtotime($reprise.' +'.($setting->DUREESERVICE).' days'));
 
         //$nextconge = date('Y-m-d',strtotime($nextconge.' +'.($vacance).' day'));
 
@@ -1194,7 +1198,7 @@ LE DIRECTEUR GENERAL<br>
 
         if($next < 0) $nextconge = null;
 
-        $employe->LASTCONGE = $model->DEBUTPLANIF; $employe->DATECALCUL = $nextconge;
+        $employe->LASTCONGE = $model->FINPLANIF; $employe->DATECALCUL = $nextconge;
 
         if($nextconge != null) $vnextconge = self::trueDate2($nextconge); else $vnextconge = "";
 

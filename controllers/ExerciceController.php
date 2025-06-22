@@ -484,6 +484,8 @@ class ExerciceController extends Controller
             $historique->save(false);
             $idhistorique = $historique->ID;
 
+            $setting = \app\models\Parametre::findOne(1);
+
 
             foreach ($employes as $employe) {
 
@@ -565,9 +567,9 @@ class ExerciceController extends Controller
 
                                     $decision->save(false);
 
-                                    $finservice = date('Y-m-d',strtotime($employe->DATECALCUL.' -1 day'));
-
                                     $debutservice = date('Y-m-d',strtotime($employe->LASTCONGE.' +1 day'));
+
+                                    $finservice = date('Y-m-d',strtotime($debutservice.' +' .($setting->DUREESERVICE - 1).' days'));
 
                                     $nb++;
 
