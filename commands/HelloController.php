@@ -92,13 +92,13 @@ class HelloController extends Controller
 
         </html>';
 
-        $download = new Telechargement();
-        $download->fichier = $name;
-        $download->save(false);
+        if(count($decisions) > 0) {
+            $download = new Telechargement();
+            $download->fichier = $name;
+            $download->save(false);
+        }
 
         try{
-
-            //"tsumbang@gmail.com",
 
             \Yii::$app
                 ->mailer->compose()
