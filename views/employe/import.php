@@ -25,7 +25,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <label>Fichier de donn&eacute;es &agrave; importer</label><br>
 
-        <input type="file" name="fichier" id="fichier" required accept=".xls,.xlsx" /> <br>
+        <input type="file" name="fichier" id="fichier" required accept=".csv" /> <br>
 
         <p style="color: red">
         <ul>

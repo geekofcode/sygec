@@ -103,6 +103,7 @@ class JouissanceSearch extends Jouissance
             'USERCREATE' => $this->USERCREATE,
             'PLATEFORME' => $this->PLATEFORME,
             'STATUT' => $this->STATUT,
+            'EXERCICE' => $this->EXERCICE,
             'TYPES' => $this->TYPES
         ]);
 
@@ -112,11 +113,10 @@ class JouissanceSearch extends Jouissance
             ->andFilterWhere(['like', 'FIN', $this->FIN])
             ->andFilterWhere(['like', 'MESSAGE', $this->MESSAGE])
             ->andFilterWhere(['like', 'LIEU', $this->LIEU])
-            ->andFilterWhere(['like', 'DOCUMENT', $this->DOCUMENT])
-            ->andFilterWhere(['like', 'EXERCICE', $this->EXERCICE]);
+            ->andFilterWhere(['like', 'DOCUMENT', $this->DOCUMENT]);
 
 
-        if(isset($this->direction)) {
+        if(isset($this->direction) && $this->direction != "") {
 
             $tab = array(); $tab2 = array();
             $emps = Employe::find()->where(["DIRECTION"=>$this->direction])->all();
@@ -129,7 +129,7 @@ class JouissanceSearch extends Jouissance
 
         }
 
-        if(isset($this->service)) {
+        if(isset($this->service) && $this->service != "") {
 
             $tab = array(); $tab2 = array();
             $emps = Employe::find()->where(["SERVICE"=>$this->service])->all();
@@ -142,7 +142,7 @@ class JouissanceSearch extends Jouissance
         }
 
 
-        if(isset($this->departement))    {
+        if(isset($this->departement) && $this->departement!= ""){
 
             $tab = array(); $tab2 = array();
             $emps = Employe::find()->where(["CODEDPT"=>$this->departement])->all();
@@ -154,7 +154,7 @@ class JouissanceSearch extends Jouissance
             $query->andFilterWhere(["IN","IDDECISION",$tab2]);
         }
 
-        if(isset($this->employe)) {
+        if(isset($this->employe) && $this->employe != "") {
 
             $tab2 = array();
 

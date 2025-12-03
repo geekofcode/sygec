@@ -39,15 +39,26 @@ class HelloController extends Controller
 
         $decisions = \app\models\Decisionconges::find()->where(["FICHIER" => 0])->orderBy(["ID_DECISION"=>SORT_DESC])->all();
 
-        $zip = new \ZipArchive();   $repertoire = './web/uploads';
+        $zip = new \ZipArchive();
+        //$repertoire = './web/uploads';
+        // Utilisation d'un alias Yii pour avoir toujours un chemin absolu
+        $repertoire = \Yii::getAlias('@app/web/uploads');
+        if (!is_dir($repertoire)) {
+            mkdir($repertoire, 0777, true);
+        }
+        
         $name = round(microtime(true)).".zip";
         $destination = $repertoire."/".$name;
         if($zip->open($destination,\ZIPARCHIVE::CREATE) !== true) {
+            echo "Impossible d'ouvrir le fichier <$destination>\n";
             return false;
+        } else {
+            echo "Fichier zip créé avec succès : <$destination>\n";
         }
 
         foreach ($decisions as $decision) {
 
+            echo "Génération de la décision ".$decision->ID_DECISION." \n";
             $filename = Generator::decision2($decision->ID_DECISION);
 
             if(empty($filename)) echo "Model de déicions ".$decision->ID_DECISION." vide : ".$filename." \n";
@@ -59,10 +70,12 @@ class HelloController extends Controller
                 $cheminf = $repertoire."/".$filename;
 
                 $zip->addFile($cheminf,$filename);
+                echo "Fichier ".$filename." ajouté au zip.\n";
             }
         }
 
         $zip->close();
+        echo "Fichier zip fermé avec succès.\n";
 
         $content = '<!Doctype html>
 

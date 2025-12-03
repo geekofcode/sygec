@@ -186,20 +186,22 @@ class SiteController extends Controller
     public function actionExport1() {
 
         $jour = date("Y-m-d");
-        $fileName = "reporting-" . $jour. ".txt";
+        $fileName = "reporting-" . $jour. ".csv";
 
+        header("Content-Type: text/csv; charset=utf-8");
         header("Content-Disposition: attachment; filename=\"$fileName\"");
-        //header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        //header("Content-Type: application/vnd.ms-excel");
-        //header('Content-type: application/ms-excel');
-        //header("Content-Type: text/plain");
+        header("Pragma: no-cache");
+        header("Expires: 0");
 
         $fields = array('MATRICULE','NOM','EXERCICE','PERMISSION IMPUTABLE (Jrs)', 'PERMISSION NON IMPUTABLE (Jrs)','JOUISSANCE','NON JOUISSANCE','CREDIT CONGES (Jrs)','PROCHAIN CONGE', 'DIRECTION', 'DEPARTEMENT',  'SERVICE', 'POSTE','STATUT', 'CONGES PLANIFIES');
 
-        // Display column names as first row
-        $excelData = implode("\t", array_values($fields)) . "\n";
+        $output = fopen('php://output', 'w');
+        fputcsv($output, $fields);
 
-        $query = "SELECT * FROM employe WHERE MATRICULE IS NOT NULL ";
+        // Display column names as first row
+        //$excelData = implode("\t", array_values($fields)) . "\n";
+
+        $query = "SELECT * FROM employe WHERE MATRICULE IS NOT NULL AND STATUT = 1";
 
         if(isset($_REQUEST["matricule"]) && !empty($_REQUEST["matricule"])) {
             $query.=" AND MATRICULE = '$_REQUEST[matricule]'";
@@ -361,7 +363,8 @@ class SiteController extends Controller
                 $tab2[] = 0;
             }
 
-            $excelData .= implode("\t", array_values($tab2)) . "\n";
+            //$excelData .= implode("\t", array_values($tab2)) . "\n";
+            fputcsv($output, $tab2);
 
         }
 
@@ -369,8 +372,9 @@ class SiteController extends Controller
 
 
         // Render excel data
-        echo $excelData;
+        //echo $excelData;
 
+        fclose($output);
         exit;
 
         /*

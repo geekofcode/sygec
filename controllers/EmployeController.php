@@ -266,7 +266,7 @@ class EmployeController extends Controller
                     if ($returnVar === 0) {
                         return ['success' => true, 'message' => 'Import des employes effectue avec succes', 'output' => $output];
                     } else {
-                        return ['success' => false, 'message' => 'Command execution failed', 'output' => $output];
+                        return ['success' => false, 'message' => 'Command execution failed ', 'output' => $output, 'returnVar' => $returnVar];
                     }
 
                 } catch (\Exception $e) {

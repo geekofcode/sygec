@@ -14,6 +14,7 @@ use app\models\Habilitation;
 /* @var $this yii\web\View */
 /* @var $model app\models\Jouissance */
 /* @var $form yii\widgets\ActiveForm */
+/* @var $matricule string */
 
 
 $compte = \app\models\USER::findIdentity(Yii::$app->user->identity->IDUSER); $menu = "M9";
@@ -69,18 +70,18 @@ $habilation = Habilitation::find()->where(['CODEROLE'=>$compte->ROLE,'CODEMENU'=
     ?>
 
    <?php
-       if ($model->isNewRecord) echo $form->field($model, 'IDDECISION')->widget(\yii\jui\AutoComplete::classname(), [
+       if ($model->STATUT == "B") echo $form->field($model, 'IDDECISION')->widget(\yii\jui\AutoComplete::classname(), [
            'clientOptions' => ['source' => Decisionconges::find()->select(['ID_DECISION AS value', 'REF_DECISION as  label'])->where(['STATUT'=>'V'])->andWhere(['!=','EDITION',''])->orderBy('REF_DECISION')->asArray()->all()],
            'options' => ['class' => 'form-control']
-       ]); else echo $form->field($model, 'IDDECISION')->dropDownList(ArrayHelper::map(Decisionconges::find()->where(['STATUT'=>'V'])->andWhere(['!=','EDITION',''])->orderBy(['ID_DECISION'=>SORT_ASC])->all(),"ID_DECISION","name2"),['prompt'=>'Choisir','disabled'=>$model->isNewRecord?false:true])  ?>
+       ]); else echo $form->field($model, 'IDDECISION')->dropDownList(ArrayHelper::map(Decisionconges::find()->where(['STATUT'=>'V'])->andWhere(['!=','EDITION',''])->orderBy(['ID_DECISION'=>SORT_ASC])->all(),"ID_DECISION","name2"),['prompt'=>'Choisir','disabled'=>($model->STATUT == "B")?false:true])  ?>
 
          <?php //$form->field($model, 'NUMERO')->textInput(['maxlength' => true, 'disabled'=>$model->isNewRecord?false:true])->label("Timbre de jouissance de cong&eacute;s (Ex: 18/ADC/DG/DH/DH.P/DHPP/SAD/ahm)")?>
 
-    <?php echo $form->field($model, 'TYPES')->dropDownList(["01"=>"JOUISSANCE TOTALE","02"=>"JOUISSANCE PARTIELLE","04"=>"RELIQUAT CONGE","03"=>"NON JOUISSANCE"],['prompt'=>'Choisir','disabled'=>$model->isNewRecord?false:true,'id'=>'types','onchange'=>'choix()']);   ?>
+    <?php echo $form->field($model, 'TYPES')->dropDownList(["01"=>"JOUISSANCE TOTALE","02"=>"JOUISSANCE PARTIELLE","04"=>"RELIQUAT CONGE","03"=>"NON JOUISSANCE"],['prompt'=>'Choisir','disabled'=>($model->STATUT == "B")?false:true,'id'=>'types','onchange'=>'choix()']);   ?>
 
     <?php
 
-    if($model->isNewRecord) {
+    if($model->STATUT == "B") {
 
         echo $form->field($model, 'TIMBRE')->textInput(['type'=>'text', 'required'=>true]);
 
@@ -92,7 +93,7 @@ $habilation = Habilitation::find()->where(['CODEROLE'=>$compte->ROLE,'CODEMENU'=
 
         echo $form->field($model, 'TIMBRE')->textInput(['type'=>'text', 'required'=>true, 'disabled'=> true]);
 
-        echo $form->field($model, 'SIGNATAIRE')->textInput(['type'=>'text', 'required'=>true, 'disabled'=>($model->STATUT == "V")?true:false]);
+        echo $form->field($model, 'SIGNATAIRE')->textInput(['type'=>'text', 'required'=>true, 'disabled'=>($model->STATUT == "V")?false:true]);
     }
 
     ?>
@@ -101,14 +102,20 @@ $habilation = Habilitation::find()->where(['CODEROLE'=>$compte->ROLE,'CODEMENU'=
 
      <?= $form->field($model, 'DOCUMENTFILE')->fileInput()->label("DOCUMENT"); $model->getDOC(); ?>
 
-    <?php echo $form->field($model, 'PLATEFORME')->dropDownList(ArrayHelper::map(\app\models\Etablissement::find()->all(),"CODEETS","LIBELLE"),['prompt'=>'Choisir','disabled'=>$model->isNewRecord?false:true])  ?>
+    <?php echo $form->field($model, 'PLATEFORME')->dropDownList(ArrayHelper::map(\app\models\Etablissement::find()->all(),"CODEETS","LIBELLE"),['prompt'=>'Choisir','disabled'=>($model->STATUT == "B")?false:true])  ?>
 
      <div class="form-group">
          <?php if($model->isNewRecord) echo Html::submitButton('ENREGISTRER', ['class' => 'btn btn-success']) ?>
 
          <?php
 
-         if(!$model->isNewRecord) {  echo Html::submitButton('ENREGISTRER', ['class' => 'btn btn-success'])."  "; if($model->STATUT == "B") {  if ($habilation->ADELETE == 1) echo Html::a('VALIDER ET GENERER LE DOCUMENT D\'AUTORISATION',['jouissance/valider','id'=>$model->IDNATURE], ['class' => 'btn btn-primary']);    if ($habilation->ADELETE == 1) echo "&nbsp;&nbsp;".Html::a('ANNULER ET SUPPRIMER LA NON JOUISSANCE',['jouissance/delete2','id'=>$model->IDNATURE], ['class' => 'btn btn-danger']);  } else  { echo '<a class="btn btn-primary" href="../web/uploads/'.$model->DOCUMENT.'" target="_blank">AFFICHER LE DOCUMENT D\'AUTORISATION</a>  ';   } } ?>
+         if(!$model->isNewRecord) {  echo Html::submitButton('ENREGISTRER', ['class' => 'btn btn-success'])."  ";
+             if($model->STATUT == "B") {
+                 if ($habilation->ADELETE == 1) echo Html::a('VALIDER ET GENERER LE DOCUMENT D\'AUTORISATION',['jouissance/valider','id'=>$model->IDNATURE], ['class' => 'btn btn-primary']);
+                 if ($habilation->ADELETE == 1) echo "&nbsp;&nbsp;".Html::a('ANNULER ET SUPPRIMER LA NON JOUISSANCE',['jouissance/delete2','id'=>$model->IDNATURE], ['class' => 'btn btn-danger']);
+                }
+             else  { echo '<a class="btn btn-primary" href="../web/uploads/'.$model->DOCUMENT.'" target="_blank">AFFICHER LE DOCUMENT D\'AUTORISATION</a>  ';         if (($habilation->ADELETE == 1)) echo Html::a('RAPPELER LE DOCUMENT',['jouissance/rappeler','id'=>$model->IDNATURE], ['class' => 'btn btn-success'])."&nbsp;&nbsp;";  }
+         } ?>
 
 
      </div>

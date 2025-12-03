@@ -1182,6 +1182,8 @@ LE DIRECTEUR GENERAL<br>
 
         //$debutservice = date('Y-m-d',strtotime($finservice.' -'.$setting->DUREESERVICE.' day'));
 
+        if($employe->LASTCONGE == null || $employe->LASTCONGE == '') $employe->LASTCONGE = $employe->DATEEMBAUCHE;
+
         $debutservice = date('Y-m-d',strtotime($employe->LASTCONGE.' +1 day'));
 
         $finservice = date('Y-m-d',strtotime($debutservice.' +' .($setting->DUREESERVICE - 1).' days'));
@@ -1205,6 +1207,8 @@ LE DIRECTEUR GENERAL<br>
         $date1 = new \DateTime($model->DEBUTPLANIF); $date2 = new \DateTime($finservice);
 
         if($date1 > $date2) {
+
+            echo "Good : La date de début de congé planifié est supérieure à la date de fin de période de service.";
 
             $employe->save(false);
 
@@ -1694,7 +1698,10 @@ LE DIRECTEUR GENERAL<br>
             //return "ok";
         }
 
-        else return "";
+        else {
+            echo "Erreur : La date de début de congé planifié est antérieur à la date de fin de période de service.";
+            return "";
+        }
 
     }
 

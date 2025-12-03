@@ -105,8 +105,8 @@ class Jouissance extends \yii\db\ActiveRecord
             'DOCUMENT4' => 'Document de report',
             'employe' => 'Employé',
             'debutconge' => 'Début de la période',
-            'nbjour' => 'Nombre de jour voulu',
-            'timbre' => 'Timbre du document',
+            'nbjour' => 'Nombre de jour voulu (Uniquement pour la jouissance partielle)',
+            'TIMBRE' => 'Timbre du document',
             'signataire' => 'Signataire du document'
         ];
     }

@@ -13,7 +13,7 @@ use app\models\Suspension;
 
 
 
-$employes = Employe::find()->all(); $nbemployes = count($employes);
+$employes = Employe::find()->where(["STATUT"=>"1"])->all(); $nbemployes = count($employes);
 $exo = \app\models\Exercice::find()->where(["STATUT"=>"O"])->orderBy(["ANNEEEXIGIBLE"=>SORT_DESC])->one();
 if($exo == null) $exo = \app\models\Exercice::find()->where(["STATUT"=>"F"])->orderBy(["ANNEEEXIGIBLE"=>SORT_DESC])->one();
 $decisions = Decisionconges::find()->where(['STATUT'=>'V','ANNEEEXIGIBLE'=>$exo->ANNEEEXIGIBLE])->all(); $nbdecision = count($decisions);

@@ -100,6 +100,8 @@ class JouissanceController extends Controller
 
         $model = new Jouissance();
 
+        $model->STATUT = 'B';
+
         if ($model->load(Yii::$app->request->post())) {
 
             $decision = Decisionconges::findOne($model->IDDECISION);
@@ -141,8 +143,7 @@ class JouissanceController extends Controller
 
                     else {
 
-
-                        $model->STATUT = 'B'; $model->DATECREATION = date("Y-m-d");
+                        $model->DATECREATION = date("Y-m-d");
 
                         $model->USERCREATE = Yii::$app->user->identity->IDUSER;
 
@@ -170,29 +171,36 @@ class JouissanceController extends Controller
 
                             $timbre = "";
 
-                            $employe = \app\models\Employe::findOne($decision->MATICULE);
+                            if($model->TIMBRE != null && !empty($model->TIMBRE)) {
+                                $timbre = $model->TIMBRE;
+                            } else {
 
-                            if ($employe->CODEETS_EMB == "DLA") {
-                                $di = \app\models\Direction::findOne($employe->DIRECTION);
-                                if (($di != null) && strpos($di->LIBELLE, 'Exploitation') !== false) {
-                                    $ampliation = \app\models\Ampliation::findOne(8);
-                                } else {
-                                    $ampliation = \app\models\Ampliation::findOne(3);
-                                }
-        
-                            } else if ($employe->CODEETS_EMB == "NSI") {
-                                $di = \app\models\Direction::findOne($employe->DIRECTION);
-                                if (($di != null) && strpos($di->LIBELLE, 'International') !== false) {
-                                    $ampliation = \app\models\Ampliation::findOne(7);
-                                } else {
-                                    $ampliation = \app\models\Ampliation::findOne(9);
-                                }
-                            } else  $ampliation = \app\models\Ampliation::findOne(['VILLE' => $employe->CODEETS_EMB]);
-        
-                            if(($ampliation->TIMBRE != null) && !empty($ampliation->TIMBRE))  $timbre = $ampliation->TIMBRE;
-                            else $timbre = $setting->TIMBREJOUISSANCE;
-                            
-                            $numero = $this->getDecisionNumber($decision->ANNEEEXIGIBLE)." - ".$timbre."".$model->timbre."".Yii::$app->user->identity->INITIAL;
+                                $employe = \app\models\Employe::findOne($decision->MATICULE);
+
+                                if ($employe->CODEETS_EMB == "DLA") {
+                                    $di = \app\models\Direction::findOne($employe->DIRECTION);
+                                    if (($di != null) && strpos($di->LIBELLE, 'Exploitation') !== false) {
+                                        $ampliation = \app\models\Ampliation::findOne(8);
+                                    } else {
+                                        $ampliation = \app\models\Ampliation::findOne(3);
+                                    }
+
+                                } else if ($employe->CODEETS_EMB == "NSI") {
+                                    $di = \app\models\Direction::findOne($employe->DIRECTION);
+                                    if (($di != null) && strpos($di->LIBELLE, 'International') !== false) {
+                                        $ampliation = \app\models\Ampliation::findOne(7);
+                                    } else {
+                                        $ampliation = \app\models\Ampliation::findOne(9);
+                                    }
+                                } else  $ampliation = \app\models\Ampliation::findOne(['VILLE' => $employe->CODEETS_EMB]);
+
+                                if(($ampliation->TIMBRE != null) && !empty($ampliation->TIMBRE))  $timbre = $ampliation->TIMBRE;
+                                else $timbre = $setting->TIMBREJOUISSANCE;
+
+                                $timbre = $timbre."".Yii::$app->user->identity->INITIAL;
+                            }
+
+                            $numero = $this->getDecisionNumber($decision->ANNEEEXIGIBLE)." - ".$timbre;
 
                             $model->NUMERO = $numero;
 
@@ -414,7 +422,211 @@ class JouissanceController extends Controller
 
                 $model->DOCUMENTFILE->saveAs('../web/uploads/' . $model->DOCUMENTFILE->baseName . '.' . $model->DOCUMENTFILE->extension);
 
-            } else { $model->save(false); }
+            }
+
+            $timbre = "";
+
+            $setting = \app\models\Parametre::findOne(1);
+            $decision = Decisionconges::findOne($model->IDDECISION);
+
+            if($model->TIMBRE != null && !empty($model->TIMBRE)) {
+                $timbre = $model->TIMBRE;
+            }
+
+            else {
+
+                $employe = \app\models\Employe::findOne($decision->MATICULE);
+
+                if ($employe->CODEETS_EMB == "DLA") {
+                    $di = \app\models\Direction::findOne($employe->DIRECTION);
+                    if (($di != null) && strpos($di->LIBELLE, 'Exploitation') !== false) {
+                        $ampliation = \app\models\Ampliation::findOne(8);
+                    } else {
+                        $ampliation = \app\models\Ampliation::findOne(3);
+                    }
+
+                } else if ($employe->CODEETS_EMB == "NSI") {
+                    $di = \app\models\Direction::findOne($employe->DIRECTION);
+                    if (($di != null) && strpos($di->LIBELLE, 'International') !== false) {
+                        $ampliation = \app\models\Ampliation::findOne(7);
+                    } else {
+                        $ampliation = \app\models\Ampliation::findOne(9);
+                    }
+                } else  $ampliation = \app\models\Ampliation::findOne(['VILLE' => $employe->CODEETS_EMB]);
+
+                if(($ampliation->TIMBRE != null) && !empty($ampliation->TIMBRE) ) $timbre = $ampliation->TIMBRE;
+
+                else $timbre = $setting->TIMBREJOUISSANCE;
+
+                $timbre = $timbre."".Yii::$app->user->identity->INITIAL;;
+            }
+
+            $numero = $this->getDecisionNumber($decision->ANNEEEXIGIBLE)." - ".$timbre;
+
+            $model->NUMERO = $numero;
+
+            // jouissance partielle
+
+            if($model->TYPES == "02"){
+
+                $debut = $model->debutconge;
+
+                $fin =  date('Y-m-d', strtotime($model->debutconge. ' + '.($model->nbjour - 1).' days'));
+
+                $exist = Jouissance::find()->where(['IDDECISION'=>$model->IDDECISION,'TYPES'=>['02','01']])->all();
+
+                if($model->nbjour > $decision->NBJOUR) {
+
+                    Yii::$app->session->setFlash('error', 'Impossible de valider cette jouissance de congé, il vous reste '.$decision->NBJOUR.' jour(s) de disponible sur la décision de congé '.$decision->REF_DECISION.' ');
+
+                    return $this->redirect(['update','id'=>$id]);
+
+                }
+
+                else if($model->nbjour < 12) {
+
+                    Yii::$app->session->setFlash('error', 'Le nombre de jours de congé minimal pour une jouissance partielle est de 12 ');
+
+                    return $this->redirect(['update','id'=>$id]);
+
+                }
+
+                else {
+
+                    $model->DEBUT = $debut;  $model->FIN = $fin;
+
+                    $model->TITRE = 'AUTORISATION DE JOUISSANCE PARTIELLE DE CONGE';
+
+                    $model->IDUSER = Yii::$app->user->identity->IDUSER;
+
+                    $model->DOCUMENT4 = $model->signataire;
+                    $model->DOCUMENT3 = $model->timbre;
+                    $model->JOUR = $model->nbjour;
+
+                    $model->save(false);
+
+                    $model->NUMERO = $numero; $model->save(false);
+
+                    if ($model->DOCUMENTFILE != null) $model->DOCUMENTFILE->saveAs('../web/uploads/' . $model->DOCUMENTFILE->baseName . '.' . $model->DOCUMENTFILE->extension);
+
+                    $logs = new Loges();
+                    $logs->DATEOP = date("Y-m-d H:i:s");
+                    $logs->USERID = Yii::$app->user->identity->IDUSER;
+                    $logs->USERNAME = Yii::$app->user->identity->NOM;
+                    $logs->OPERATION = "Création jouissance partielle numero ".$model->IDNATURE;
+                    $logs->save(false);
+
+                }
+
+            }
+
+            // jouissance reliquat conges
+
+            else if($model->TYPES == "04"){
+
+                $exist = Jouissance::find()->where(['IDDECISION'=>$model->IDDECISION,'TYPES'=>'02'])->one();
+
+                $exist2 = Jouissance::find()->where(['IDDECISION'=>$model->IDDECISION,'TYPES'=>'04'])->all();
+
+                if($exist == null) {
+
+                    Yii::$app->session->setFlash('error', 'Vous  ne pouvez pas créer de jouissance de réliquat sans avoir crée de jouissance partielle.');
+
+                    return $this->redirect(['update','id'=>$id]);
+                }
+
+                else if(count($exist2) != 0) {
+
+                    Yii::$app->session->setFlash('error', 'Vous  ne pouvez pas créer plus d\'un reliquat congés par jouissance');
+                    return $this->redirect(['update','id'=>$id]);
+                }
+
+                else {
+
+                    // $datedebut = date('Y-m-d', strtotime($exist->FIN. ' + 1 days'));
+
+                    $datedebut = $model->debutconge;
+
+                    $reste = $decision->NBJOUR - 1;
+
+                    $datefin = date('Y-m-d', strtotime($datedebut. ' + '.$reste.' days'));
+
+                    $model->DEBUT = $datedebut; $model->FIN = $datefin;
+
+                    $model->TITRE = 'AUTORISATION DE JOUISSANCE DU RELIQUAT DE CONGE';
+
+                    $model->IDUSER = Yii::$app->user->identity->IDUSER;
+
+                    $model->DOCUMENT4 = $model->signataire;
+                    $model->DOCUMENT3 = $model->timbre;
+
+                    $model->save(false);
+
+                    $model->NUMERO = $numero; $model->save(false);
+
+                    if ($model->DOCUMENTFILE != null) $model->DOCUMENTFILE->saveAs('../web/uploads/' . $model->DOCUMENTFILE->baseName . '.' . $model->DOCUMENTFILE->extension);
+
+                    Yii::$app->session->setFlash('success', 'Reliquat de jouissance enregistré avec succès');
+
+                    $logs = new Loges();
+                    $logs->DATEOP = date("Y-m-d H:i:s");
+                    $logs->USERID = Yii::$app->user->identity->IDUSER;
+                    $logs->USERNAME = Yii::$app->user->identity->NOM;
+                    $logs->OPERATION = "Création reliquat jouissance numero ".$model->IDNATURE;
+                    $logs->save(false);
+
+                }
+
+            }
+
+            // jouissance totale
+
+            else {
+
+                $exist = Jouissance::find()->where(['IDDECISION'=>$model->IDDECISION,'TYPES'=>['02','01']])->all();
+
+                if(count($exist) != 0) {
+
+                    Yii::$app->session->setFlash('error', 'Vous avez déja crée des jouissances pour cette décision.');
+
+                    return $this->redirect(['update','id'=>$id]);
+                }
+
+                else {
+
+                    $debut = $model->debutconge;
+
+                    $fin =  date('Y-m-d', strtotime($model->debutconge. ' + '.($decision->NBJOUR - 1).' days'));
+
+                    $model->DEBUT = $debut;  $model->FIN = $fin;
+
+                    $model->TITRE = 'AUTORISATION DE JOUISSANCE DE CONGE';
+
+                    $model->IDUSER = Yii::$app->user->identity->IDUSER;
+
+                    $model->DOCUMENT4 = $model->signataire;
+                    $model->DOCUMENT3 = $model->timbre;
+
+                    $model->save(false);
+
+                    $model->NUMERO = $numero;
+
+                    $model->save(false);
+
+                    if ($model->DOCUMENTFILE != null) $model->DOCUMENTFILE->saveAs('../web/uploads/' . $model->DOCUMENTFILE->baseName . '.' . $model->DOCUMENTFILE->extension);
+
+                    Yii::$app->session->setFlash('success', 'Jouissance totale enregistrée avec succès');
+
+                    $logs = new Loges();
+                    $logs->DATEOP = date("Y-m-d H:i:s");
+                    $logs->USERID = Yii::$app->user->identity->IDUSER;
+                    $logs->USERNAME = Yii::$app->user->identity->NOM;
+                    $logs->OPERATION = "Création jouissance totale numero ".$model->IDNATURE;
+                    $logs->save(false);
+
+                }
+
+            }
 
             Yii::$app->session->setFlash('success', 'Jouissance enregistrée avec succes');
 
@@ -423,7 +635,9 @@ class JouissanceController extends Controller
 
         else {
 
-            $model->timbre = $model->DOCUMENT3; $model->signataire = $model->DOCUMENT4;
+            $model->timbre = $model->DOCUMENT3;
+            $model->signataire = $model->DOCUMENT4;
+            $model->debutconge = $model->DEBUT;
 
             $decision = Decisionconges::findOne($model->IDDECISION);
             $employe = Employe::findOne($decision->MATICULE);
@@ -432,6 +646,7 @@ class JouissanceController extends Controller
 
             return $this->render('update', [
                 'model' => $model,
+                'matricule'=>$decision->MATICULE,
             ]);
 
         }
@@ -564,6 +779,56 @@ class JouissanceController extends Controller
             return $this->redirect(['jouissance/update', 'id' => $model->IDNATURE, 'table' => 'T6']);
 
         }
+
+    }
+
+    public function actionRappeler($id) {
+
+        if (Yii::$app->user->isGuest) {
+            return $this->redirect(['site/login']);
+        }
+
+        $model = $this->findModel($id);
+
+        $setting = \app\models\Parametre::findOne(1);
+
+        $decision = \app\models\Decisionconges::findOne($model->IDDECISION);
+
+        $employe = \app\models\Employe::findOne($decision->MATICULE);
+
+        if($model->TYPES == "01" || $model->TYPES == "02" || $model->TYPES == "04") {
+
+            $date1 = strtotime($model->DEBUT); $date2 = strtotime($model->FIN);
+
+            $diff = $date2 - $date1; $nbjour = abs(round($diff/86400)) + 1;
+
+            $reste = $decision->NBJOUR + $nbjour;
+
+            $decision->NBJOUR = $reste;
+
+            $decision->save(false);
+
+            // au cas au credit congé existant, diminuer cela
+            $nj = Jouissance::find()->where(["TYPES"=>"03","IDDECISION"=>$decision->ID_DECISION,"STATUT"=>"V"])->one();
+            if($nj != null){
+                $employe->SOLDECREDIT = $employe->SOLDECREDIT + $nbjour;
+                $employe->save(false);
+            }
+        }
+
+        $model->DOCUMENT = NULL;
+
+        $model->STATUT = 'B';
+
+        $model->TYPES = NULL;
+
+        $model->save(false);
+
+        // envoi du mail aux responsables et au RH
+
+        Yii::$app->session->setFlash('success', 'Document rappelé avec succès, vous pouvez le modifier et le valider à nouveau');
+
+        return $this->redirect(['jouissance/update', 'id' => $model->IDNATURE, 'table' => 'T6']);
 
     }
 
@@ -832,9 +1097,9 @@ class JouissanceController extends Controller
 
         $builder.='<tr><td colspan="2" height="60px" style="text-align: justify; padding-top: 10px; padding-left: 10px; padding-bottom: 10px; padding-right: 10px; font-size:16px;  line-height: 28px">'.nl2br($texte).'</td></tr> <tr><td colspan="2" height="30px"></td></tr>';
 
-        $builder.='<tr><td colspan="2" height="20px"></td></tr><tr><td height="30" style="padding: 5px" style="padding: 5px;" ></td><td style="padding: 5px" style="padding: 5px; font-weight: normal; font-style: italic" align="right">Fait &agrave; '.$plateforme->LIBELLE.' le  '.self::trueDate2($today).'</td></tr>';
+        $builder.='<tr><td colspan="2" height="20px"></td></tr><tr><td height="30" style="padding: 5px" style="padding: 5px;" ></td><td style="padding: 5px" style="padding: 5px; font-weight: normal; font-style: italic; text-align: left" >Fait &agrave; '.$plateforme->LIBELLE.' le  '.self::trueDate2($today).'</td></tr>';
 
-        $builder.='<tr><td colspan="2" height="20px"></td></tr><tr><td height="30" style="padding: 5px" style="padding: 5px;" ></td><td style="padding: 5px" style="padding: 5px; font-weight: bold; text-transform: uppercase" align="right">'.$model->SIGNATAIRE.'</td></tr>';
+        $builder.='<tr><td colspan="2" height="20px"></td></tr><tr><td height="30" style="padding: 5px" style="padding: 5px;" ></td><td style="padding: 5px" style="padding: 5px; font-weight: bold; text-transform: uppercase; text-align:left">'.$model->SIGNATAIRE.'</td></tr>';
 
 
         if($employe->CODEETS == "DLA") {
@@ -980,7 +1245,7 @@ class JouissanceController extends Controller
 
     public function actionCreate1(){
 
-        $model = new Jouissance();
+        $model = new Jouissance(); $model->STATUT = 'B';
 
         if ($model->load(Yii::$app->request->post())) {
 
@@ -1012,7 +1277,7 @@ class JouissanceController extends Controller
 
                 else {
 
-                    $model->STATUT = 'B'; $model->DATECREATION = date("Y-m-d");
+                    $model->DATECREATION = date("Y-m-d");
 
                     $model->USERCREATE = Yii::$app->user->identity->IDUSER;
 
@@ -1059,29 +1324,38 @@ class JouissanceController extends Controller
 
                             $timbre = "";
 
-                            $employe = \app\models\Employe::findOne($decision->MATICULE);
+                            if($model->TIMBRE != null && !empty($model->TIMBRE)) {
+                                $timbre = $model->TIMBRE;
+                            }
 
-                            if ($employe->CODEETS_EMB == "DLA") {
-                                $di = \app\models\Direction::findOne($employe->DIRECTION);
-                                if (($di != null) && strpos($di->LIBELLE, 'Exploitation') !== false) {
-                                    $ampliation = \app\models\Ampliation::findOne(8);
-                                } else {
-                                    $ampliation = \app\models\Ampliation::findOne(3);
-                                }
-        
-                            } else if ($employe->CODEETS_EMB == "NSI") {
-                                $di = \app\models\Direction::findOne($employe->DIRECTION);
-                                if (($di != null) && strpos($di->LIBELLE, 'International') !== false) {
-                                    $ampliation = \app\models\Ampliation::findOne(7);
-                                } else {
-                                    $ampliation = \app\models\Ampliation::findOne(9);
-                                }
-                            } else  $ampliation = \app\models\Ampliation::findOne(['VILLE' => $employe->CODEETS_EMB]);
-        
-                            if(($ampliation->TIMBRE != null) && !empty($ampliation->TIMBRE) ) $timbre = $ampliation->TIMBRE;
-                            else $timbre = $setting->TIMBREJOUISSANCE;
+                            else {
+                                $employe = \app\models\Employe::findOne($decision->MATICULE);
 
-                            $numero = $this->getDecisionNumber($decision->ANNEEEXIGIBLE)." - ".$timbre."".$model->timbre."".Yii::$app->user->identity->INITIAL;
+                                if ($employe->CODEETS_EMB == "DLA") {
+                                    $di = \app\models\Direction::findOne($employe->DIRECTION);
+                                    if (($di != null) && strpos($di->LIBELLE, 'Exploitation') !== false) {
+                                        $ampliation = \app\models\Ampliation::findOne(8);
+                                    } else {
+                                        $ampliation = \app\models\Ampliation::findOne(3);
+                                    }
+
+                                } else if ($employe->CODEETS_EMB == "NSI") {
+                                    $di = \app\models\Direction::findOne($employe->DIRECTION);
+                                    if (($di != null) && strpos($di->LIBELLE, 'International') !== false) {
+                                        $ampliation = \app\models\Ampliation::findOne(7);
+                                    } else {
+                                        $ampliation = \app\models\Ampliation::findOne(9);
+                                    }
+                                } else  $ampliation = \app\models\Ampliation::findOne(['VILLE' => $employe->CODEETS_EMB]);
+
+                                if(($ampliation->TIMBRE != null) && !empty($ampliation->TIMBRE) ) $timbre = $ampliation->TIMBRE;
+
+                                else $timbre = $setting->TIMBREJOUISSANCE;
+
+                                $timbre = $timbre."".Yii::$app->user->identity->INITIAL;;
+                            }
+
+                            $numero = $this->getDecisionNumber($decision->ANNEEEXIGIBLE)." - ".$timbre;
 
                             $model->NUMERO = $numero;
 

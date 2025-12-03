@@ -98,6 +98,10 @@ $habilation = Habilitation::find()->where(['CODEROLE'=>$compte->ROLE,'CODEMENU'=
                 'label' => 'Déplacé',
                 'value' => $model->getDeplace()
             ],
+           'RH'=> [
+                        'label' => 'Personnel RH',
+                        'value' => $model->getRH()
+           ],
         ],
     ]) ?>
 </div>

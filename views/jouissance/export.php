@@ -25,7 +25,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'EXERCICE')->dropDownList(ArrayHelper::map(Exercice::find()->where(['STATUT'=>'O'])->all(),"ANNEEEXIGIBLE","ANNEEEXIGIBLE"),['prompt'=>'choisir','id'=>'exercice','onchange'=>'myexo()']) ?>
+    <?= $form->field($model, 'EXERCICE')->dropDownList(ArrayHelper::map(Exercice::find()->all(),"ANNEEEXIGIBLE","ANNEEEXIGIBLE"),['prompt'=>'choisir','id'=>'exercice','onchange'=>'myexo()']) ?>
 
     <div class="form-group">
         <?php

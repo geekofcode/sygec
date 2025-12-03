@@ -10,7 +10,9 @@ use app\models\Echellon;
 use app\models\Emploi;
 use app\models\Employe;
 use app\models\Etablissement;
+use app\models\Parametre;
 use app\models\Service;
+use app\models\Decisionconges;
 use Yii;
 use yii\console\Controller;
 use yii\console\ExitCode;
@@ -459,6 +461,88 @@ class EmployeController extends Controller
         } catch (\Swift_SwiftException $exception) {
         } catch (\Exception $exception) {
         }
+    }
+
+    public static function ageEmploye($datnaiss,$nextconge) {
+
+        $setting = Parametre::findOne(1);
+
+        $nextyear = date('Y-m-d', strtotime($datnaiss . ' +'.$setting->RETRAITE.' years'));
+
+        $date1 = strtotime($nextconge); $date2 = strtotime($nextyear);
+
+        $diff = $date2 - $date1;
+
+        $diff = round($diff/(86400 * 365));
+
+        return $diff;
+
+    }
+    public function actionFix2024(){
+
+        $employes = ["00769","00420","02959","02957","03126","00007","02512","02018","02740","00088","00615","00860","01306","00047","00069","00304","00303","00464","02016","00021","01509","00770","02567","00033","00769","02773","01390","00615","00135","02201"];
+
+        $exercice = 2024;
+
+        $setting = Parametre::findOne(1);
+
+        foreach($employes as $employe){
+
+            $decision = Decisionconges::find()->where(["ANNEEEXIGIBLE" => $exercice, "MATICULE" => $employe])->orderBy(["ID_DECISION"=>SORT_DESC])->one();
+
+            if($decision != null) {
+
+                $reprise = date('Y-m-d',strtotime($decision->FINPLANIF.' +1 day'));
+
+                $nextconge = date('Y-m-d',strtotime($reprise.' +'.($setting->DUREESERVICE).' days'));
+
+                $personne = Employe::findOne($employe);
+
+                $next = self::ageEmploye($personne->DATNAISS,$nextconge);
+
+                if($next < 0) $nextconge = null;
+
+                $personne->LASTCONGE = $decision->FINPLANIF; $personne->DATECALCUL = $nextconge;
+
+                $personne->save(false);
+
+                echo "Mise a jour ok pour ".$employe." \n";
+
+            }
+
+        }
+
+        return ExitCode::OK;
+    }
+
+    public function actionUpdateDecisions2024()
+    {
+        $decisions = Decisionconges::find()
+            ->alias('D')
+            ->leftJoin('jouissance J', 'D.ID_DECISION = J.IDDECISION')
+            ->where([
+                'D.ANNEEEXIGIBLE' => 2024,
+                'D.NBJOUR' => 0,
+                'D.STATUT' => 'V'
+            ])
+            ->andWhere(['IS', 'J.IDNATURE', null])
+            ->all();
+
+        $count = 0;
+
+        foreach ($decisions as $decision) {
+            $decision->NBJOUR = 30;
+            if ($decision->save(false)) {
+                $count++;
+                echo "Décision {$decision->ID_DECISION} mise à jour (30 jours)\n";
+            } else {
+                echo "Erreur lors de la mise à jour de la décision {$decision->ID_DECISION}\n";
+            }
+        }
+
+        echo "\nTotal: {$count} décision(s) mise(s) à jour\n";
+
+        return ExitCode::OK;
     }
 
 }

@@ -207,4 +207,13 @@ class Decisionconges extends \yii\db\ActiveRecord
         return "Décision ".$this->REF_DECISION." pour la période du ".$d1." au ".$d2."";
 
     }
+
+    public function getName3() {
+
+        $d1 = date("d-m-Y",strtotime($this->DEBUTPLANIF));
+        $d2 = date("d-m-Y", strtotime($this->FINPLANIF));
+
+        return "Décision ".$this->REF_DECISION." pour une période de ".$this->NBJOUR." jour(s) (du ".$d1." au ".$d2.")";
+
+    }
 }

@@ -63,7 +63,7 @@ class Employe extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['MATRICULE','CODECAT','CODEECH','CODEEMP','CODEETS','CODECIV','CODECONT','SITMAT'], 'required'],
+            [['MATRICULE','CODECAT','CODEECH','CODEEMP','CODEETS','CODECIV','CODECONT','SITMAT','CODEETS_EMB'], 'required'],
             [['DATEEMBAUCHE','SITMAT','JEUNEFILLE','SERVICE','VILLE','DATECALCUL','CODEDPT','LASTCONGE','COMMENTAIRE','STATUT','DATNAISS','DEPLACE','DIRECTION','RH','AMPLIATION','TIMBRE'], 'safe'],
             [['SOLDECREDIT', 'SOLDEAVANCE','ENFANT'], 'number'],
             [['MATRICULE'], 'string', 'max' => 10],
@@ -315,6 +315,11 @@ class Employe extends \yii\db\ActiveRecord
     public function getDeplace(){
 
         if($this->DEPLACE == 1) return "OUI"; else return "NON";
+    }
+
+    public function getRH(){
+
+        if($this->RH == 1) return "OUI"; else return "NON";
     }
 
     public function getConvertDate($date){

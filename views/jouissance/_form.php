@@ -15,6 +15,7 @@ use kartik\select2\Select2;
 /* @var $this yii\web\View */
 /* @var $model app\models\Jouissance */
 /* @var $form yii\widgets\ActiveForm */
+/* @var $matricule string */
 
 
 $compte = \app\models\USER::findIdentity(Yii::$app->user->identity->IDUSER); $menu = "M9";  $menu2 = "M19";
@@ -119,17 +120,17 @@ $habilation1 = Habilitation::find()->where(['CODEROLE'=>$compte->ROLE,'CODEMENU'
 
     <?php
     if ($model->isNewRecord) echo $form->field($model, 'IDDECISION')->dropDownList([],['prompt'=>'Choisir']);
-    else echo $form->field($model, 'IDDECISION')->dropDownList(ArrayHelper::map(Decisionconges::find()->where(['STATUT'=>'V'])->andWhere(['!=','EDITION',''])->orderBy(['ID_DECISION'=>SORT_ASC])->all(),"ID_DECISION","name2"),['prompt'=>'Choisir','disabled'=>$model->isNewRecord?false:true])  ?>
+    else echo $form->field($model, 'IDDECISION')->dropDownList(ArrayHelper::map(Decisionconges::find()->where(['STATUT'=>'V'])->andWhere(['!=','EDITION',''])->andWhere(['MATICULE' => $matricule])->orderBy(['ID_DECISION'=>SORT_ASC])->all(),"ID_DECISION","name3"),['prompt'=>'Choisir','disabled'=>($model->STATUT == "B")?false:true])  ?>
 
-    <?php echo $form->field($model, 'TYPES')->dropDownList(["01"=>"JOUISSANCE TOTALE","02"=>"JOUISSANCE PARTIELLE","04"=>"RELIQUAT CONGE"],['prompt'=>'Choisir','disabled'=>$model->isNewRecord?false:true,'id'=>'types','onchange'=>'choix()']);   ?>
+    <?php echo $form->field($model, 'TYPES')->dropDownList(["01"=>"JOUISSANCE TOTALE","02"=>"JOUISSANCE PARTIELLE","04"=>"RELIQUAT CONGE"],['prompt'=>'Choisir','disabled'=>($model->isNewRecord)? false:true,'id'=>'types','onchange'=>'choix()']);   ?>
 
     <?php //$form->field($model, 'TITRE')->textInput(['maxlength' => true]) ?>
 
     <?php //$form->field($model, 'NUMERO')->textInput(['maxlength' => true, 'disabled'=>$model->isNewRecord?false:true])->label("Timbre de jouissance de cong&eacute;s (Ex: 18/ADC/DG/DH/DH.P/DHPP/SAD/ahm)")?>
 
-    <?php if(!$model->isNewRecord) echo $form->field($model, 'DEBUT')->textInput(['type'=>'date','readonly'=>true]) ?>
+    <?php if($model->STATUT != "B") echo $form->field($model, 'DEBUT')->textInput(['type'=>'date','readonly'=>true]) ?>
 
-<?php if(!$model->isNewRecord) echo $form->field($model, 'FIN')->textInput(['type'=>'date','readonly'=>true]) ?>
+    <?php if($model->STATUT != "B")  echo $form->field($model, 'FIN')->textInput(['type'=>'date','readonly'=>true]) ?>
 <!-- <span>NB : En cas de jouissance totale, la date de fin est calcul&eacute;e en automatiquement</span><br><br> -->
     <?php //$form->field($model, 'LIEU')->textInput(['maxlength' => true]) ?>
 
@@ -144,28 +145,12 @@ $habilation1 = Habilitation::find()->where(['CODEROLE'=>$compte->ROLE,'CODEMENU'
 
     ?>
 
-    <!--
-    <label style="display: none" class="cache">D&eacute;but de la p&eacute;riode</label>
-
-    <input type="date" name="debut" id="debut" class="form-control cache" min="<?= date("Y-m-d"); ?>" value="" style="display: none" /><br> -->
 
     <?php
 
-    if($model->isNewRecord) {
-
-       /* echo '<label class="control-label">D&eacute;but de la p&eacute;riode</label>';
-        echo DatePicker::widget([
-            'model' => $model,
-            'value' => $model->debutconge,
-            'attribute' => 'debutconge',
-            'language' => 'fr',
-            'dateFormat' => 'yyyy-MM-dd',
-            'options' => ['class' => 'form-control input-sm','placeholder' => 'Choisir une date','required'=>true],
-
-        ]);*/
+    if($model->STATUT == "B") {
 
         echo $form->field($model, 'debutconge')->textInput(['required' => true,'type'=>'date']);
-
 
         echo "<br>";
 
@@ -195,11 +180,11 @@ $habilation1 = Habilitation::find()->where(['CODEROLE'=>$compte->ROLE,'CODEMENU'
 
     <?= $form->field($model, 'COMMENTAIRE')->textarea(['rows' => 6]) ?>
 
-<?php if($model->isNewRecord) { echo $form->field($model, 'DOCUMENTFILE')->fileInput()->label("DOCUMENT"); } else {
+<?php if($model->STATUT == "B") { echo $form->field($model, 'DOCUMENTFILE')->fileInput()->label("DOCUMENT"); } else {
     if($model->STATUT != "V")  echo $form->field($model, 'DOCUMENTFILE')->fileInput()->label("DOCUMENT");
 }  $model->getDOC(); ?>
 
-    <?php echo $form->field($model, 'PLATEFORME')->dropDownList(ArrayHelper::map(\app\models\Etablissement::find()->all(),"CODEETS","LIBELLE"),['prompt'=>'Choisir','disabled'=>$model->isNewRecord?false:true])  ?>
+    <?php echo $form->field($model, 'PLATEFORME')->dropDownList(ArrayHelper::map(\app\models\Etablissement::find()->all(),"CODEETS","LIBELLE"),['prompt'=>'Choisir','disabled'=>($model->STATUT == "B")?false:true])  ?>
 
     <div class="form-group">
         <?php if($model->isNewRecord) echo Html::submitButton('ENREGISTRER', ['class' => 'btn btn-success']) ?>
@@ -229,13 +214,15 @@ if(!$model->isNewRecord) {
             echo '<a class="btn btn-primary" href="../web/uploads/'.$model->NUMERO2.'" target="_blank">AFFICHER LE DOCUMENT DE REPORT</a>  ';
         }
 
-    if($model->TYPES == "01" || $model->TYPES == "02" || $model->TYPES == "04")  {
+       if($model->TYPES == "01" || $model->TYPES == "02" || $model->TYPES == "04")  {
 
         if($model->STATUT == "V") {
 
         if (($habilation->ADELETE == 1) && ($habilation1->ACREATE == 1)) echo Html::a('SUSPENDRE LA JOUISSANCE',['cancelation/create','id'=>$model->IDNATURE], ['class' => 'btn btn-danger'])."&nbsp;&nbsp;";
 
-            if($habilation->ADELETE == 1) echo "&nbsp;&nbsp;".Html::a('REPORTER LA JOUISSANCE',['jouissance/create2','id'=>$model->IDNATURE], ['class' => 'btn btn-info']);
+        if (($habilation->ADELETE == 1)) echo Html::a('RAPPELER LE DOCUMENT',['jouissance/rappeler','id'=>$model->IDNATURE], ['class' => 'btn btn-success'])."&nbsp;&nbsp;";
+
+        if($habilation->ADELETE == 1) echo "&nbsp;&nbsp;".Html::a('REPORTER LA JOUISSANCE',['jouissance/create2','id'=>$model->IDNATURE], ['class' => 'btn btn-info']);
 
        }
 
@@ -259,7 +246,8 @@ $lien = Yii::$app->getUrlManager()->createUrl('jouissance/checker');
 $script = <<< JS
 
  $(document).ready(function() {
-      $(".field-nbjour").css({'display':'none'}); $("#nbjour").prop("required",false);
+      //$(".field-nbjour").css({'display':'none'}); 
+      $("#nbjour").prop("required",false);
  });
 
 function choix(){
