@@ -1202,7 +1202,12 @@ LE DIRECTEUR GENERAL<br>
 
         $employe->LASTCONGE = $model->FINPLANIF; $employe->DATECALCUL = $nextconge;
 
-        if($nextconge != null) $vnextconge = self::trueDate2($nextconge); else $vnextconge = "";
+        if($nextconge != null)  {
+            $vnextconge = self::trueDate2($nextconge);
+        } else  {
+            $retraite = date('Y-m-d', strtotime($employe->DATNAISS. ' - '.$setting->RETRAITE.' years'));
+            $vnextconge = "Départ à la retraite le ".self::trueDate2($retraite);
+        }
 
         $date1 = new \DateTime($model->DEBUTPLANIF); $date2 = new \DateTime($finservice);
 
@@ -1765,7 +1770,12 @@ LE DIRECTEUR GENERAL<br>
 
         $employe->LASTCONGE = $model->DEBUTPLANIF; $employe->DATECALCUL = $nextconge;
 
-        if($nextconge != null) $vnextconge = self::trueDate2($nextconge); else $vnextconge = "";
+        if($nextconge != null)  {
+            $vnextconge = self::trueDate2($nextconge);
+        } else  {
+            $retraite = date('Y-m-d', strtotime($employe->DATNAISS. ' - '.$setting->RETRAITE.' years'));
+            $vnextconge = "Départ à la retraite le ".self::trueDate2($retraite);
+        }
 
         $date1 = new \DateTime($model->DEBUTPLANIF); $date2 = new \DateTime($finservice);
 

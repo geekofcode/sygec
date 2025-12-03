@@ -826,4 +826,95 @@ class EmployeController extends Controller
         return $retour."".$next;
     }
 
+    /**
+     * Export employees reaching retirement age
+     */
+    public function actionExport1(){
+
+        if (Yii::$app->user->isGuest) {
+            return $this->redirect(['site/login']);
+        }
+
+        $setting = Parametre::findOne(1); $retraite = $setting->RETRAITE;
+        $exercice = Exercice::find()->where(['STATUT'=>'O'])->one(); $datefin = $exercice->DATEFIN;
+        $naissance_retraite = date('Y-m-d', strtotime($datefin. ' - '.$retraite.' years'));
+
+        $csvfile = "employe_retraite-".$exercice->ANNEEEXIGIBLE.".csv";
+
+        //output header
+        header("Content-type: text/x-csv");
+        header("Content-type: text/csv");
+        header("Content-type: application/csv");
+        header("Content-Disposition: attachment; filename=".$csvfile."");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+
+        // create file pointer
+        $output = fopen("php://output", "w");
+
+        //output the column headings
+        fputcsv($output, array('MATRICULE','LIEU EMBAUCHE','LIEU AFFECTATION','TYPE CONTRAT','CIVILITE', 'NOM','PRENOM','DATE EMBAUCHE','DATE RETRAITE','DATE NAISSANCE', 'DATE FIN DERNIER CONGE'),",");
+
+
+        $employes = Employe::findBySql("SELECT * FROM employe WHERE DATNAISS <= '$naissance_retraite' ")->all();
+
+        foreach($employes as $employe){
+
+            $tab2 = array();
+            $tab2[] = $employe->MATRICULE;  $tab2[] = $employe->CODEETS_EMB; $tab2[] = $employe->CODEETS;
+            $tab2[] = $employe->CODECONT; $tab2[] = $employe->CODECIV; $tab2[] = $employe->NOM;
+            $tab2[] = $employe->PRENOM; $tab2[] = $employe->DATEEMBAUCHE; $tab2[] = date('Y-m-d', strtotime($employe->DATNAISS. ' + '.$retraite.' years'));
+            $tab2[] = $employe->DATNAISS; $tab2[] = $employe->LASTCONGE;
+
+            fputcsv($output, $tab2, ",");
+
+        }
+
+        fclose($output);
+
+        exit;
+
+    }
+
+    /**
+     * Export employees in CDD with less than 1 year of service
+     */
+    public function actionExport2(){
+
+        if (Yii::$app->user->isGuest) {
+            return $this->redirect(['site/login']);
+        }
+
+        $exercice = Exercice::find()->where(['STATUT'=>'O'])->one();
+        $datedebut = $exercice->DATEBEDUT;
+
+        $csvfile = "employe_cdd_moins_1an-".$exercice->ANNEEEXIGIBLE.".csv";
+        //output header
+        header("Content-type: text/x-csv");
+        header("Content-type: text/csv");
+        header("Content-type: application/csv");
+        header("Content-Disposition: attachment; filename=".$csvfile."");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+
+        // create file pointer
+        $output = fopen("php://output", "w");
+
+        //output the column headings
+
+        fputcsv($output, array('MATRICULE','LIEU EMBAUCHE','LIEU AFFECTATION','TYPE CONTRAT','CIVILITE', 'NOM','PRENOM','DATE EMBAUCHE'),",");
+
+        $employes = Employe::findBySql("SELECT * FROM employe WHERE CODECONT = 'C.D.D' AND DATEEMBAUCHE >= '$datedebut' ")->all();
+
+        foreach($employes as $employe){
+            $tab2 = array();
+            $tab2[] = $employe->MATRICULE;  $tab2[] = $employe->CODEETS_EMB; $tab2[] = $employe->CODEETS;
+            $tab2[] = $employe->CODECONT; $tab2[] = $employe->CODECIV; $tab2[] = $employe->NOM;
+            $tab2[] = $employe->PRENOM; $tab2[] = $employe->DATEEMBAUCHE;
+            fputcsv($output, $tab2, ",");
+        }
+        fclose($output);
+        exit;
+    }
+
 }

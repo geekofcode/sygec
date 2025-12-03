@@ -33,6 +33,10 @@ $habilation = Habilitation::find()->where(['CODEROLE'=>$compte->ROLE,'CODEMENU'=
         <?php if($habilation->ACREATE == 1) echo Html::a('Ajouter un employé', ['create'], ['class' => 'btn btn-success']) ?>
        &nbsp;&nbsp;
         <?php if($habilation->ACREATE == 1) echo Html::a('Mis à jour des employés', ['importation'], ['class' => 'btn btn-primary']) ?>
+        &nbsp;&nbsp;
+        <?php if($habilation->ACREATE == 1) echo Html::a('Export des employés allant en retraite prochainement', ['export1'], ['class' => 'btn btn-default']) ?>
+        &nbsp;&nbsp;
+        <?php if($habilation->ACREATE == 1) echo Html::a('Export des employés en CDD de moins d\'1 an ', ['export2'], ['class' => 'btn btn-default']) ?>
     </p>
 
     <div style="overflow: auto;overflow-y: hidden; Height:?">
