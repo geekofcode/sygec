@@ -238,4 +238,55 @@ class ExportDataController extends Controller
         return ExitCode::OK;
 
     }
+
+    public function actionExportEmployes()
+    {
+        $jour1 = date("Y-m-d H:i:s");
+        $csvfile = "./web/export-employes-" . $jour1 . ".csv";
+
+        // Créer le fichier CSV
+        $output = fopen($csvfile, "w");
+
+        // En-têtes
+        fputcsv($output, array('MATRICULE', 'NOM', 'POSTE', 'DEBUT CONGE','FIN CONGE','DIRECTION','ETS','STATUS'), ",");
+
+        // Récupérer les employés avec DATECALCUL > '2026-01-01'
+        $employes = Employe::find()
+            ->where(['>=', 'DATECALCUL', '2026-01-01'])
+            ->orderBy(['NOM' => SORT_ASC])
+            ->all();
+
+        $setting = \app\models\Parametre::findOne(1);
+
+        // Remplir les données
+        foreach ($employes as $employe) {
+
+            $job = Emploi::findOne($employe->CODEEMP);
+            $debut = $employe->DATECALCUL; $nbjour = 0;
+            $direction = Direction::findOne($employe->DIRECTION);
+
+            if($employe->CODEEMP == 273 || $employe->CODEEMP == 462) $nbjour = $setting->DUREECONGES2;
+            else $nbjour = $setting->DUREECONGES;
+
+            $datefin = date('Y-m-d', strtotime($debut . ' + ' . ($nbjour - 1) . ' days'));
+
+            $tab = array();
+            $tab[] = $employe->MATRICULE;
+            $tab[] = $employe->NOM." ".$employe->PRENOM;
+            $tab[] = ($job != null) ? $job->LIBELLE: "";
+            $tab[] = $debut;
+            $tab[] = $datefin;
+            $tab[] = ($direction != null)?$direction->LIBELLE:"";
+            $tab[] = $employe->CODEETS;
+            $tab[] = ($employe->STATUT == 1) ?"ACTIF":"INACTIF";
+            fputcsv($output, $tab, ",");
+        }
+
+        fclose($output);
+
+        echo "Export réalisé avec succès : " . $csvfile . "\n\r";
+        echo "Nombre d'employés exportés : " . count($employes) . "\n\r";
+
+        return ExitCode::OK;
+    }
 }

@@ -1283,8 +1283,8 @@ LE DIRECTEUR GENERAL<br>
 <td height="30px" style="text-align: center; padding: 2px; font-size: 10px" valign="middle">Le ' . self::trueDate2($employe->DATEEMBAUCHE) . ' à ' . $lieu . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">du ' . self::trueDate2($debutservice) . ' au ' . self::trueDate2($finservice) . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px" >' . $durer . '</td>
-<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . ($durer - $model->NBJOUR) . '</td>
-<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . $model->NBJOUR . '</td>
+<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . ($employe->SOLDEAVANCE) . '</td>
+<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' .  ($durer - $employe->SOLDEAVANCE). '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px" >du ' . self::trueDate2($model->DEBUTPLANIF) . ' au ' . self::trueDate2($model->FINPLANIF) . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . self::trueDate2($reprise) . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . $vnextconge . '</td>';
@@ -1440,8 +1440,8 @@ LE DIRECTEUR GENERAL<br>
 <td valign="middle" height="30px" style="text-align: center; padding: 0px; font-size: 10px"><table border="1" width="100%" height="auto"  style=" font-size: 10px; border-right: 1px solid #000000;" cellpadding="0" cellspacing="0"><tr><td style="" align="center">du<br>' . self::trueDate3($debutservice) . '<br>du<br>' . self::trueDate3($finsuspension) . '</td><td align="center">au<br>' . self::trueDate3($debutsuspension) . '<br>au<br>' . self::trueDate3($finservice) . '</td></tr></table></td>
 <td valign="middle" height="30px" style="text-align: center; padding: 1px; font-size: 10px" >' . $jour1 . ' Jours<br><br>' . $jour2 . ' Jours</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 1px; font-size: 10px" >' . $durer . '</td>
-<td valign="middle" height="30px" style="text-align: center; padding: 1px; font-size: 10px">' . ($durer - $model->NBJOUR) . '</td>
-<td valign="middle" height="30px" style="text-align: center; padding: 1px; font-size: 10px">' . $model->NBJOUR . '</td>
+<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . ($employe->SOLDEAVANCE) . '</td>
+<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' .  ($durer - $employe->SOLDEAVANCE). '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 1px; font-size: 10px" >du ' . self::trueDate3($model->DEBUTPLANIF) . ' au ' . self::trueDate3($model->FINPLANIF) . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 1px; font-size: 10px">' . self::trueDate3($reprise) . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 1px; font-size: 10px">' . $vnextconge . '</td>';
@@ -1577,8 +1577,8 @@ LE DIRECTEUR GENERAL<br>
 <td height="30px" style="text-align: center; padding: 2px; font-size: 10px" valign="middle">Le ' . self::trueDate2($employe->DATEEMBAUCHE) . ' à ' . $lieu . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">du ' . self::trueDate2($debutservice) . ' au ' . self::trueDate2($finservice) . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px" >' . $durer . '</td>
-<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . ($durer - $model->NBJOUR) . '</td>
-<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . $model->NBJOUR . '</td>
+<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . ($employe->SOLDEAVANCE) . '</td>
+<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' .  ($durer - $employe->SOLDEAVANCE). '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px" >du ' . self::trueDate2($model->DEBUTPLANIF) . ' au ' . self::trueDate2($model->FINPLANIF) . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . self::trueDate2($reprise) . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . $vnextconge . '</td>';
@@ -1849,8 +1849,8 @@ LE DIRECTEUR GENERAL<br>
 <td height="30px" style="text-align: center; padding: 2px; font-size: 10px" valign="middle">Le ' . self::trueDate2($employe->DATEEMBAUCHE) . ' à ' . $lieu . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">du ' . self::trueDate2($debutservice) . ' au ' . self::trueDate2($finservice) . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px" >' . $durer . '</td>
-<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . ($durer - $model->NBJOUR) . '</td>
-<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . $model->NBJOUR . '</td>
+<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . ($employe->SOLDEAVANCE) . '</td>
+<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' .  ($durer - $employe->SOLDEAVANCE). '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px" >du ' . self::trueDate2($model->DEBUTPLANIF) . ' au ' . self::trueDate2($model->FINPLANIF) . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . self::trueDate2($reprise) . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . $vnextconge . '</td>';
@@ -2006,8 +2006,8 @@ LE DIRECTEUR GENERAL<br>
 <td valign="middle" height="30px" style="text-align: center; padding: 0px; font-size: 10px"><table border="1" width="100%" height="auto"  style=" font-size: 10px; border-right: 1px solid #000000;" cellpadding="0" cellspacing="0"><tr><td style="" align="center">du<br>' . self::trueDate3($debutservice) . '<br>du<br>' . self::trueDate3($finsuspension) . '</td><td align="center">au<br>' . self::trueDate3($debutsuspension) . '<br>au<br>' . self::trueDate3($finservice) . '</td></tr></table></td>
 <td valign="middle" height="30px" style="text-align: center; padding: 1px; font-size: 10px" >' . $jour1 . ' Jours<br><br>' . $jour2 . ' Jours</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 1px; font-size: 10px" >' . $durer . '</td>
-<td valign="middle" height="30px" style="text-align: center; padding: 1px; font-size: 10px">' . ($durer - $model->NBJOUR) . '</td>
-<td valign="middle" height="30px" style="text-align: center; padding: 1px; font-size: 10px">' . $model->NBJOUR . '</td>
+<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . ($employe->SOLDEAVANCE) . '</td>
+<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' .  ($durer - $employe->SOLDEAVANCE). '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 1px; font-size: 10px" >du ' . self::trueDate3($model->DEBUTPLANIF) . ' au ' . self::trueDate3($model->FINPLANIF) . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 1px; font-size: 10px">' . self::trueDate3($reprise) . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 1px; font-size: 10px">' . $vnextconge . '</td>';
@@ -2143,8 +2143,8 @@ LE DIRECTEUR GENERAL<br>
 <td height="30px" style="text-align: center; padding: 2px; font-size: 10px" valign="middle">Le ' . self::trueDate2($employe->DATEEMBAUCHE) . ' à ' . $lieu . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">du ' . self::trueDate2($debutservice) . ' au ' . self::trueDate2($finservice) . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px" >' . $durer . '</td>
-<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . ($durer - $model->NBJOUR) . '</td>
-<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . $model->NBJOUR . '</td>
+<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . ($employe->SOLDEAVANCE) . '</td>
+<td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' .  ($durer - $employe->SOLDEAVANCE). '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px" >du ' . self::trueDate2($model->DEBUTPLANIF) . ' au ' . self::trueDate2($model->FINPLANIF) . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . self::trueDate2($reprise) . '</td>
 <td valign="middle" height="30px" style="text-align: center; padding: 2; font-size: 10px">' . $vnextconge . '</td>';

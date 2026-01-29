@@ -34,7 +34,16 @@ $this->params['breadcrumbs'][] = 'Modifier';
        echo $this->render('_form2', [
             'model' => $model,
                'matricule' => $matricule,
-        ]); }
+        ]);
+    }
+     else {
+         echo $this->render('_form3', [
+                'model' => $model,
+                'matricule' => $matricule,
+          ]);
+     }
+
+
 
     ?>
 

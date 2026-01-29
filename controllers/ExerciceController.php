@@ -298,7 +298,7 @@ class ExerciceController extends Controller
 
 
 
-        $retour = '<table width="100%"  border="1"><tr style="background-color:#666666; border:1px solid #ffffff; color:#000000; font-weight: bold"><td style="padding: 5px" style="padding: 5px">MATRICULE</td><td style="padding: 5px">EMPLOYE</td><td style="padding: 5px" width="150">DATE DE DEBUT</td><td  style="padding: 5px" width="150">DATE DE FIN</td><td  style="padding: 5px">PERMISSION</td><td  style="padding: 5px">DIRECTION</td><td  style="padding: 5px">DEPARTEMENT</td><td  style="padding: 5px">SERVICE</td></tr>';
+        $retour = '<table width="100%"  border="1"><tr style="background-color:#666666; border:1px solid #ffffff; color:#000000; font-weight: bold"><td style="padding: 5px" style="padding: 5px">MATRICULE</td><td style="padding: 5px">EMPLOYE</td><td style="padding: 5px" width="150">DATE DE DEBUT</td><td  style="padding: 5px" width="150">DATE DE FIN</td><td  style="padding: 5px" width="150">PERIODE DE SERVICE</td><td  style="padding: 5px">PERMISSION</td><td  style="padding: 5px">DIRECTION</td><td  style="padding: 5px">DEPARTEMENT</td><td  style="padding: 5px">SERVICE</td></tr>';
 
         $model = Exercice::find()->where(['ANNEEEXIGIBLE' => $exo])->One();
 
@@ -385,8 +385,9 @@ class ExerciceController extends Controller
 
                                     $nbpermission = $employe->SOLDEAVANCE;
 
-                                    if($employe->CODEEMP == 273 || $employe->CODEEMP == 462) $nbjour = $setting->DUREECONGES2 - $nbpermission;
-                                    else $nbjour = $setting->DUREECONGES - $nbpermission;
+                                    // on ne deduit plus les permissions
+                                    if($employe->CODEEMP == 273 || $employe->CODEEMP == 462) $nbjour = $setting->DUREECONGES2;
+                                    else $nbjour = $setting->DUREECONGES;
 
                                     $direction2 = Direction::findOne($employe->DIRECTION);
                                     $service2 = Service::findOne($employe->SERVICE);
@@ -401,10 +402,14 @@ class ExerciceController extends Controller
                                         $datefin = date('d/m/Y', strtotime($debut . ' + ' . ($nbjour - 1) . ' days'));
                                         $datedebut = date('d/m/Y', strtotime($debut));
 
+                                        $finservice = date('Y-m-d',strtotime($employe->DATECALCUL.' -1 day'));
+                                        $debutservice = date('Y-m-d',strtotime($employe->LASTCONGE.' +1 day'));
 
-                                        if($lg % 2 == 0)   $retour .= '<tr style="background-color:#ffffff; border:1px solid #dededc; color:#000000"><td style="padding: 5px">' . $employe->MATRICULE . '</td><td style="padding: 5px">' . $employe->NOM . ' ' . $employe->PRENOM . '</td><td style="padding: 5px">' . $datedebut . '</td><td style="padding: 5px">' . $datefin . '</td><td  style="padding: 5px" align="center">'.$nbpermission.'</td><td  style="padding: 5px">'.$direction_value.'</td><td  style="padding: 5px">'.$dpt_value.'</td><td  style="padding: 5px">'.$service_value.'</td></tr>';
+                                        $periode = "Du ".date('d/m/Y', strtotime($debutservice))." au ".date('d/m/Y', strtotime($finservice));
 
-                                        else $retour .= '<tr style="background-color:#dededc; border:1px solid #dededc; color:#000000"><td style="padding: 5px">' . $employe->MATRICULE . '</td><td style="padding: 5px">' . $employe->NOM . ' ' . $employe->PRENOM . '</td><td style="padding: 5px">' . $datedebut . '</td><td style="padding: 5px">' . $datefin . '</td><td  style="padding: 5px" align="center">'.$nbpermission.'</td><td  style="padding: 5px">'.$direction_value.'</td><td  style="padding: 5px">'.$dpt_value.'</td><td  style="padding: 5px">'.$service_value.'</td></tr>';
+                                        if($lg % 2 == 0)   $retour .= '<tr style="background-color:#ffffff; border:1px solid #dededc; color:#000000"><td style="padding: 5px">' . $employe->MATRICULE . '</td><td style="padding: 5px">' . $employe->NOM . ' ' . $employe->PRENOM . '</td><td style="padding: 5px">' . $datedebut . '</td><td style="padding: 5px">' . $datefin . '</td><td style="padding: 5px">' . $periode . '</td><td  style="padding: 5px" align="center">'.$nbpermission.'</td><td  style="padding: 5px">'.$direction_value.'</td><td  style="padding: 5px">'.$dpt_value.'</td><td  style="padding: 5px">'.$service_value.'</td></tr>';
+
+                                        else $retour .= '<tr style="background-color:#dededc; border:1px solid #dededc; color:#000000"><td style="padding: 5px">' . $employe->MATRICULE . '</td><td style="padding: 5px">' . $employe->NOM . ' ' . $employe->PRENOM . '</td><td style="padding: 5px">' . $datedebut . '</td><td style="padding: 5px">' . $datefin . '</td><td style="padding: 5px">' . $periode . '</td><td  style="padding: 5px" align="center">'.$nbpermission.'</td><td  style="padding: 5px">'.$direction_value.'</td><td  style="padding: 5px">'.$dpt_value.'</td><td  style="padding: 5px">'.$service_value.'</td></tr>';
 
 
                                         $nb++; $lg++;
@@ -524,8 +529,8 @@ class ExerciceController extends Controller
                                 $nbpermission = $employe->SOLDEAVANCE;
 
                                 //$nbjour = $setting->DUREECONGES - $nbpermission;
-                                if($employe->CODEEMP == 273 || $employe->CODEEMP == 462) $nbjour = $setting->DUREECONGES2 - $nbpermission;
-                                else $nbjour = $setting->DUREECONGES - $nbpermission;
+                                if($employe->CODEEMP == 273 || $employe->CODEEMP == 462) $nbjour = $setting->DUREECONGES2;
+                                else $nbjour = $setting->DUREECONGES;
 
                                 if ($nbjour >= 0) {
 
